@@ -1,0 +1,141 @@
+import time
+
+import requests
+
+from uk_bin_collection.uk_bin_collection.common import *
+from uk_bin_collection.uk_bin_collection.get_bin_data import AbstractGetBinDataClass
+
+
+class CouncilClass(AbstractGetBinDataClass):
+    """
+    Concrete classes have to implement all abstract operations of the
+    base class. They can also override some operations with a default
+    implementation.
+    """
+
+    def parse_data(self, page: str, **kwargs) -> dict:
+
+        user_uprn = kwargs.get("uprn")
+        user_postcode = kwargs.get("postcode")
+        user_paon = kwargs.get("paon")
+        check_postcode(user_postcode)
+        bindata = {"bins": []}
+
+        # Lincoln's AchieveForms API requires 12-digit zero-padded UPRNs
+        if user_uprn:
+            user_uprn = user_uprn.zfill(12)
+
+        SESSION_URL = "https://contact.lincoln.gov.uk/authapi/isauthenticated?uri=https://contact.lincoln.gov.uk/AchieveForms/?mode=fill&consentMessage=yes&form_uri=sandbox-publish://AF-Process-503f9daf-4db9-4dd8-876a-6f2029f11196/AF-Stage-a1c0af0f-fec1-4419-80c0-0dd4e1d965c9/definition.json&process=1&process_uri=sandbox-processes://AF-Process-503f9daf-4db9-4dd8-876a-6f2029f11196&process_id=AF-Process-503f9daf-4db9-4dd8-876a-6f2029f11196&hostname=contact.lincoln.gov.uk&withCredentials=true"
+
+        API_URL = "https://contact.lincoln.gov.uk/apibroker/runLookup"
+
+        data = {
+            "formValues": {
+                "Section 1": {
+                    "chooseaddress": {"value": user_uprn or ""},
+                    "postcode": {"value": user_postcode},
+                }
+            },
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0",
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": "https://contact.lincoln.gov.uk/fillform/?iframe_id=fillform-frame-1&db_id=",
+        }
+        s = requests.session()
+        r = s.get(SESSION_URL)
+        r.raise_for_status()
+        session_data = r.json()
+        sid = session_data["auth-session"]
+        params = {
+            "id": "62aafd258f72c",
+            "repeat_against": "",
+            "noRetry": "false",
+            "getOnlyTokens": "undefined",
+            "log_id": "",
+            "app_name": "AF-Renderer::Self",
+            "_": str(int(time.time() * 1000)),
+            "sid": sid,
+        }
+
+        r = s.post(API_URL, json=data, headers=headers, params=params)
+        r.raise_for_status()
+        data = r.json()
+        rows_data = data["integration"]["transformed"]["rows_data"]
+        if not isinstance(rows_data, dict):
+            raise ValueError("Invalid data returned from API")
+
+        # Resolve which UPRN to use
+        if user_uprn:
+            target_uprn = user_uprn
+        elif user_paon and len(rows_data) > 1:
+            target_uprn = self._match_by_paon(rows_data, user_paon)
+        else:
+            target_uprn = next(iter(rows_data))
+
+        BIN_TYPES = [
+            ("refusenextdate", "Black Bin", "refuse_freq"),
+            ("recyclenextdate", "Brown Bin", "recycle_freq"),
+            ("gardennextdate", "Green Bin", "garden_freq"),
+        ]
+        FREQ_DAYS = {"weekly": 7, "fortnightly": 14}
+        today = datetime.now().date()
+
+        for uprn, data in rows_data.items():
+            if uprn != target_uprn:
+                continue
+            for key, bin_type, freq in BIN_TYPES:
+                if not data[key]:
+                    continue
+                date = datetime.strptime(data[key], "%Y-%m-%d").date()
+                step = FREQ_DAYS.get(data[freq])
+                if step:
+                    # The council's "next date" field can lag behind reality
+                    # by weeks - roll it forward by the collection frequency
+                    # until it's genuinely upcoming, rather than trusting it
+                    # as always being the next one.
+                    while date < today:
+                        date += timedelta(days=step)
+                    occurrences = 3 if step == 14 else 5
+                    offsets = [step * n for n in range(occurrences)]
+                else:
+                    if date < today:
+                        continue
+                    offsets = [0]
+                for offset in offsets:
+                    dict_data = {
+                        "type": bin_type,
+                        "collectionDate": (date + timedelta(days=offset)).strftime(
+                            "%d/%m/%Y"
+                        ),
+                    }
+                    bindata["bins"].append(dict_data)
+
+        return bindata
+
+    @staticmethod
+    def _match_by_paon(rows_data, paon):
+        """Match address by house number/name using the display field."""
+        paon_norm = str(paon).strip().upper()
+
+        for uprn, data in rows_data.items():
+            display = str(data.get("display", "")).upper()
+            first_line = display.split("\n")[0].strip()
+            if (
+                first_line.startswith(paon_norm + " ")
+                or first_line.startswith(paon_norm + ",")
+                or first_line == paon_norm
+            ):
+                return uprn
+
+        for uprn, data in rows_data.items():
+            display = str(data.get("display", "")).upper()
+            if paon_norm in display:
+                return uprn
+
+        raise ValueError(
+            f"Could not match house number/name '{paon}' in address results"
+        )
