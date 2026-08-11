@@ -70,6 +70,43 @@ export function dpaToNormalized(dpa: DpaAddress): NormalizedAddress {
   };
 }
 
+async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<NormalizedAddress[]> {
+  try {
+    const cleanNoSpace = postcode.replace(/\s+/g, "");
+    // Query postcoder address endpoint with uprn=true
+    const url = `https://ws.postcoder.com/pcw/${encodeURIComponent(apiKey)}/address/uk/${encodeURIComponent(cleanNoSpace)}?uprn=true&format=json&lines=3`;
+    
+    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) {
+      console.warn(`Postcoder API returned status ${response.status}`);
+      return [];
+    }
+
+    const items = await response.json();
+    if (!Array.isArray(items)) {
+      return [];
+    }
+
+    return items.map((item: any) => {
+      const summary = item.summaryline || [item.addressline1, item.addressline2, item.posttown, item.postcode].filter(Boolean).join(", ");
+      return {
+        uprn: String(item.uprn || `1000${Math.floor(Math.random() * 90000000 + 10000000)}`),
+        buildingNumber: item.number || "",
+        buildingName: item.premise || "",
+        thoroughfareName: item.street || "",
+        postTown: item.posttown || "",
+        postcode: item.postcode || postcode,
+        custodianCode: item.custodian_code || "4720",
+        councilName: item.county || item.posttown || "Local Council",
+        singleLineAddress: summary
+      };
+    });
+  } catch (err) {
+    console.error("Postcoder API fetch error:", err);
+    return [];
+  }
+}
+
 async function lookupPostcodeViaPostcodesIo(postcode: string): Promise<{ councilName: string; adminCode: string; ward: string } | null> {
   try {
     const clean = postcode.replace(/\s+/g, "");
@@ -109,53 +146,57 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
       return;
     }
 
-    const apiKey = process.env.OS_PLACES_API_KEY;
-    const forceMock = req.query.mock === "true" || !apiKey;
+    const postcoderApiKey = process.env.POSTCODER_API_KEY;
+    const osApiKey = process.env.OS_PLACES_API_KEY;
+    const cleanNoSpace = formattedPostcode.replace(/\s+/g, "");
 
-    let dpaResults: DpaAddress[] = [];
+    let normalizedAddresses: NormalizedAddress[] = [];
 
-    if (!forceMock && apiKey) {
-      const cleanNoSpace = formattedPostcode.replace(/\s+/g, "");
-      const osUrl = `https://api.os.uk/search/places/v1/postcode?postcode=${encodeURIComponent(cleanNoSpace)}&key=${apiKey}&dataset=DPA`;
-      
-      const response = await fetch(osUrl, {
-        headers: { "Accept": "application/json" }
-      });
+    // 1. Try Postcoder API if key is present
+    if (postcoderApiKey) {
+      normalizedAddresses = await lookupViaPostcoder(formattedPostcode, postcoderApiKey);
+    }
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.results && Array.isArray(data.results)) {
-          dpaResults = data.results
-            .map((item: any) => item.DPA)
-            .filter(Boolean);
+    // 2. Try OS Places API if OS key is present and Postcoder was not used
+    if (normalizedAddresses.length === 0 && osApiKey) {
+      const osUrl = `https://api.os.uk/search/places/v1/postcode?postcode=${encodeURIComponent(cleanNoSpace)}&key=${osApiKey}&dataset=DPA`;
+      try {
+        const osResponse = await fetch(osUrl, { headers: { Accept: "application/json" } });
+        if (osResponse.ok) {
+          const data = await osResponse.json();
+          if (data.results && Array.isArray(data.results)) {
+            const dpaList = data.results.map((item: any) => item.DPA).filter(Boolean);
+            normalizedAddresses = dpaList.map(dpaToNormalized);
+          }
         }
+      } catch (err) {
+        console.warn("OS Places API query error:", err);
+      }
+    }
+
+    // 3. Fallback: postcodes.io + mock database
+    if (normalizedAddresses.length === 0) {
+      const dpaMock = getMockDpaForPostcode(formattedPostcode);
+      if (dpaMock && dpaMock !== getMockDpaForPostcode("DEFAULT")) {
+        normalizedAddresses = dpaMock.map(dpaToNormalized);
       } else {
-        console.warn(`OS Places API error (${response.status}), falling back to mock response.`);
-        dpaResults = getMockDpaForPostcode(formattedPostcode);
-      }
-    } else {
-      dpaResults = getMockDpaForPostcode(formattedPostcode);
-    }
-
-    // If mock results were used but it's an unlisted postcode, enrich with postcodes.io
-    let normalized = dpaResults.map(dpaToNormalized);
-    if (normalized.length === 0 || dpaResults === getMockDpaForPostcode("DEFAULT")) {
-      const liveMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
-      if (liveMeta) {
-        normalized = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
-          uprn: `1000${num.toString().padStart(8, "0")}`,
-          buildingNumber: num.toString(),
-          thoroughfareName: liveMeta.ward,
-          postTown: liveMeta.councilName,
-          postcode: formattedPostcode,
-          custodianCode: liveMeta.adminCode,
-          councilName: liveMeta.councilName,
-          singleLineAddress: `${num}, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
-        }));
+        const liveMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
+        if (liveMeta) {
+          normalizedAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
+            uprn: `1000${num.toString().padStart(8, "0")}`,
+            buildingNumber: num.toString(),
+            thoroughfareName: liveMeta.ward,
+            postTown: liveMeta.councilName,
+            postcode: formattedPostcode,
+            custodianCode: liveMeta.adminCode,
+            councilName: liveMeta.councilName,
+            singleLineAddress: `${num}, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
+          }));
+        }
       }
     }
 
-    const sorted = sortAddressesNumerically(normalized);
+    const sorted = sortAddressesNumerically(normalizedAddresses);
 
     res.set("Cache-Control", "public, max-age=86400"); // Cache postcode lookup for 24h
     res.status(200).json({
