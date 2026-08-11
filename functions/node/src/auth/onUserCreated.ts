@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import { v4 as uuidv4 } from "uuid";
+import { PubSub } from "@google-cloud/pubsub";
 
 export interface CreateUserProfilePayload {
   uid: string;
@@ -39,7 +40,7 @@ export async function initializeUserProfile(payload: CreateUserProfilePayload) {
   const userDocRef = db.collection("users").doc(payload.uid);
   const scheduleDocRef = db.collection("schedules").doc(scheduleKey);
 
-  // 1. Create or update User profile document
+  // 1. Create or update User profile document in Firestore
   const userProfile = {
     uid: payload.uid,
     email: payload.email,
@@ -74,46 +75,62 @@ export async function initializeUserProfile(payload: CreateUserProfilePayload) {
   };
 
   await userDocRef.set(userProfile, { merge: true });
+  console.log(`Saved user profile to Firestore for UID: ${payload.uid}, scheduleKey: ${scheduleKey}`);
 
-  // 2. Increment subscribers count on schedule doc or seed placeholder schedule
+  // 2. Fetch Council Scraper Module
+  let scraperModule = "LeedsCityCouncil";
+  try {
+    const councilDoc = await db.collection("councils").doc(payload.address.custodianCode).get();
+    if (councilDoc.exists && councilDoc.data()?.scraperModule) {
+      scraperModule = councilDoc.data()?.scraperModule;
+    }
+  } catch (cErr) {
+    console.warn("Could not fetch council scraper module:", cErr);
+  }
+
+  // 3. Increment subscribers count or initialize cached schedule doc
   const scheduleSnap = await scheduleDocRef.get();
   if (scheduleSnap.exists) {
     await scheduleDocRef.update({
       subscribersCount: admin.firestore.FieldValue.increment(1),
       updatedAt: now
     });
+    console.log(`Reusing existing schedule cache in Firestore for ${scheduleKey}`);
   } else {
-    // Seed initial schedule structure with next 4 weeks of sample dates for immediate preview
-    const today = new Date();
-    const mockCollections = [
-      { type: "Refuse", date: getOffsetDateStr(today, 2) },
-      { type: "Food Waste", date: getOffsetDateStr(today, 2) },
-      { type: "Recycling", date: getOffsetDateStr(today, 9) },
-      { type: "Food Waste", date: getOffsetDateStr(today, 9) },
-      { type: "Garden Waste", date: getOffsetDateStr(today, 9) },
-      { type: "Refuse", date: getOffsetDateStr(today, 16) },
-      { type: "Food Waste", date: getOffsetDateStr(today, 16) },
-      { type: "Recycling", date: getOffsetDateStr(today, 23) },
-      { type: "Food Waste", date: getOffsetDateStr(today, 23) }
-    ];
-
+    // Initialize new schedule record in Firestore
+    const nextDue = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     await scheduleDocRef.set({
       scheduleKey,
       custodianCode: payload.address.custodianCode,
       uprn: payload.address.uprn,
       postcode: payload.address.postcode,
-      collections: mockCollections,
+      collections: [],
       lastScrapedAt: now,
-      nextScrapeDue: getOffsetDateStr(today, 7),
+      nextScrapeDue: nextDue,
       errorCount: 0,
       subscribersCount: 1
     });
+    console.log(`Initialized schedule record in Firestore for ${scheduleKey}`);
+  }
+
+  // 4. Trigger Scraper Worker via Pub/Sub scrape_jobs topic
+  try {
+    const pubsub = new PubSub();
+    const topic = pubsub.topic("scrape_jobs");
+    const jobPayload = {
+      custodianCode: payload.address.custodianCode,
+      uprn: payload.address.uprn,
+      postcode: payload.address.postcode,
+      proprietaryId: payload.address.proprietaryId,
+      scheduleKey: scheduleKey,
+      scraperModule: scraperModule
+    };
+    const messageBuffer = Buffer.from(JSON.stringify(jobPayload));
+    await topic.publishMessage({ data: messageBuffer });
+    console.log(`Published scrape job to PubSub topic scrape_jobs for ${scheduleKey}`);
+  } catch (pubsubErr) {
+    console.warn("PubSub publish notice (may be offline/emulator):", pubsubErr);
   }
 
   return userProfile;
-}
-
-function getOffsetDateStr(baseDate: Date, offsetDays: number): string {
-  const d = new Date(baseDate.getTime() + offsetDays * 24 * 60 * 60 * 1000);
-  return d.toISOString().split("T")[0];
 }

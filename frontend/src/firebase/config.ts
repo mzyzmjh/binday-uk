@@ -20,7 +20,7 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 
-const isConfigured = Boolean(env.VITE_FIREBASE_API_KEY);
+const isConfigured = true;
 
 try {
   if (!getApps().length) {

@@ -13,6 +13,7 @@
     "serve": "firebase emulators:start --only functions"
   },
   "dependencies": {
+    "@google-cloud/pubsub": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "firebase-admin": "^13.1.0",

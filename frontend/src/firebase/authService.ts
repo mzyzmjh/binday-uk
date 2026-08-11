@@ -23,16 +23,18 @@ export async function registerWithEmail(
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       const user = cred.user;
-      return await createOrInitUserProfile({
+      const profile = await createOrInitUserProfile({
         uid: user.uid,
         email: user.email || email,
         displayName: displayName || user.displayName || "",
         address,
         privacyPolicyAccepted: privacyAccepted
       });
+      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(profile));
+      return profile;
     } catch (e: any) {
-      // If network/firebase error in dev without project, fallback to local storage
-      console.warn("Firebase Auth fallback to local session:", e);
+      console.warn("Firebase Auth error:", e);
+      throw e;
     }
   }
 
@@ -54,9 +56,14 @@ export async function loginWithEmail(email: string, pass: string): Promise<UserP
   if (isConfigured && auth) {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, pass);
-      return await getUserProfile(cred.user.uid);
+      const profile = await getUserProfile(cred.user.uid);
+      if (profile) {
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(profile));
+      }
+      return profile;
     } catch (e: any) {
-      console.warn("Firebase Login fallback:", e);
+      console.warn("Firebase Login error:", e);
+      throw e;
     }
   }
 
@@ -77,19 +84,34 @@ export async function signInWithGoogle(
       const cred = await signInWithPopup(auth, provider);
       const user = cred.user;
 
-      let existing = await getUserProfile(user.uid);
-      if (!existing && address) {
-        existing = await createOrInitUserProfile({
+      let profile = await getUserProfile(user.uid);
+      if (!profile) {
+        const selectedAddr = address || {
+          uprn: "100051234501",
+          buildingNumber: "1",
+          thoroughfareName: "High Street",
+          singleLineAddress: "1 High Street, Leeds, LS26 8XX",
+          postcode: "LS26 8XX",
+          custodianCode: "4720",
+          councilName: "Leeds City Council"
+        };
+
+        profile = await createOrInitUserProfile({
           uid: user.uid,
           email: user.email || "google-user@example.com",
           displayName: user.displayName || "Google User",
-          address,
+          address: selectedAddr,
           privacyPolicyAccepted: privacyAccepted
         });
       }
-      if (existing) return existing;
+
+      if (profile) {
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(profile));
+        return profile;
+      }
     } catch (e: any) {
-      console.warn("Google SSO fallback to simulated Google session:", e);
+      console.warn("Google SSO error:", e);
+      throw e;
     }
   }
 
@@ -146,32 +168,37 @@ export async function logoutUser(): Promise<void> {
     try {
       await signOut(auth);
     } catch (e) {
-      console.warn("Sign out warning:", e);
+      console.warn("Sign out notice:", e);
     }
   }
   localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
 }
 
-export async function deleteCurrentAccount(uid: string): Promise<void> {
-  await deleteUserAndData(uid);
+export async function deleteCurrentAccount(): Promise<void> {
+  const stored = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+  if (stored) {
+    const user: UserProfile = JSON.parse(stored);
+    await deleteUserAndData(user.uid);
+  }
+
   if (isConfigured && auth && auth.currentUser) {
     try {
+      const uid = auth.currentUser.uid;
+      await fetch("/api/deleteUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid })
+      });
       await firebaseDeleteUser(auth.currentUser);
     } catch (e) {
-      console.warn("Firebase Auth deletion warning:", e);
+      console.warn("Account delete notice:", e);
     }
   }
+
   localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
 }
 
 export function getStoredSessionUser(): UserProfile | null {
   const stored = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return null;
-    }
-  }
-  return null;
+  return stored ? JSON.parse(stored) : null;
 }

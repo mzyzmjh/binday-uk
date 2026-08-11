@@ -207,6 +207,30 @@ export async function createOrInitUserProfile(payload: {
     updatedAt: now
   };
 
+  // 1. Trigger backend Cloud Function to guarantee Admin Firestore save + PubSub scrape job
+  try {
+    const res = await fetch("/api/initUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid: payload.uid,
+        email: payload.email,
+        displayName: payload.displayName || payload.email.split("@")[0],
+        address: payload.address,
+        privacyPolicyAccepted: payload.privacyPolicyAccepted
+      })
+    });
+    if (res.ok) {
+      const serverProfile = await res.json();
+      if (serverProfile && serverProfile.tokens) {
+        profile.tokens = serverProfile.tokens;
+      }
+    }
+  } catch (err) {
+    console.warn("Backend initUser call notice:", err);
+  }
+
+  // 2. Also save directly to client Firestore SDK
   if (isConfigured && db) {
     try {
       await setDoc(doc(db, "users", payload.uid), profile, { merge: true });
@@ -254,7 +278,9 @@ export async function getScheduleForUser(profile: UserProfile): Promise<Collecti
       const snap = await getDoc(doc(db, "schedules", scheduleKey));
       if (snap.exists()) {
         const raw = snap.data()?.collections || [];
-        return mapCollectionsWithAliases(raw, profile.customisations?.binAliases || {});
+        if (raw.length > 0) {
+          return mapCollectionsWithAliases(raw, profile.customisations?.binAliases || {});
+        }
       }
     } catch (e) {
       console.warn("Firestore get schedule fallback:", e);
@@ -304,22 +330,24 @@ function generateMockSchedule(): CollectionItem[] {
   const schedule: CollectionItem[] = [];
 
   const daysToNextTuesday = (2 - today.getDay() + 7) % 7 || 7;
-  const tues1 = new Date(today.getTime() + daysToNextTuesday * 24 * 60 * 60 * 1000);
-  const tues2 = new Date(tues1.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const tues3 = new Date(tues1.getTime() + 14 * 24 * 60 * 60 * 1000);
-  const tues4 = new Date(tues1.getTime() + 21 * 24 * 60 * 60 * 1000);
-
+  const firstTues = new Date(today.getTime() + daysToNextTuesday * 24 * 60 * 60 * 1000);
   const fmt = (d: Date) => d.toISOString().split("T")[0];
 
-  schedule.push({ type: "Refuse", date: fmt(tues1) });
-  schedule.push({ type: "Food Waste", date: fmt(tues1) });
-  schedule.push({ type: "Recycling", date: fmt(tues2) });
-  schedule.push({ type: "Garden Waste", date: fmt(tues2) });
-  schedule.push({ type: "Food Waste", date: fmt(tues2) });
-  schedule.push({ type: "Refuse", date: fmt(tues3) });
-  schedule.push({ type: "Food Waste", date: fmt(tues3) });
-  schedule.push({ type: "Recycling", date: fmt(tues4) });
-  schedule.push({ type: "Food Waste", date: fmt(tues4) });
+  for (let week = 0; week < 52; week++) {
+    const colDate = new Date(firstTues.getTime() + week * 7 * 24 * 60 * 60 * 1000);
+    const dateStr = fmt(colDate);
+
+    // Weekly food waste
+    schedule.push({ type: "Food Waste", date: dateStr });
+
+    // Alternating fortnightly Refuse and Recycling
+    if (week % 2 === 0) {
+      schedule.push({ type: "Refuse", date: dateStr });
+    } else {
+      schedule.push({ type: "Recycling", date: dateStr });
+      schedule.push({ type: "Garden Waste", date: dateStr });
+    }
+  }
 
   return schedule;
 }

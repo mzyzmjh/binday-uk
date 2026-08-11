@@ -51,7 +51,8 @@ def process_single_scrape_job(job_data: Dict[str, Any]):
     # Fallback/dynamic module resolution
     scraper_module = job_data.get("scraperModule", "LeedsCityCouncil")
 
-    result = execute_council_scrape(scraper_module, kwargs, use_mock=True)
+    # Execute real council scraper
+    result = execute_council_scrape(scraper_module, kwargs, use_mock=False)
 
     try:
         import firebase_admin
@@ -75,7 +76,7 @@ def process_single_scrape_job(job_data: Dict[str, Any]):
                 "errorCount": 0,
                 "lastErrorMessage": None
             }, merge=True)
-            print(f"Successfully cached {len(result['collections'])} collections for {schedule_key}")
+            print(f"Successfully cached {len(result['collections'])} collections for {schedule_key} in Firestore.")
         else:
             doc_ref.set({
                 "scheduleKey": schedule_key,

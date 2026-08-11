@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const deleteAccount = async () => {
     if (!user) return;
-    await deleteCurrentAccount(user.uid);
+    await deleteCurrentAccount();
     setUser(null);
   };
 
