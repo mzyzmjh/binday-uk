@@ -7,7 +7,7 @@ export interface IcalEventData {
   description: string;
   dateStr: string; // YYYY-MM-DD
   colorHex?: string;
-  valarmTrigger?: string; // e.g. "-PT17H" (19:00 day before)
+  valarmTrigger?: string | null; // e.g. "-PT17H", "none", or null
 }
 
 export function generateIcalString(
@@ -34,8 +34,6 @@ export function generateIcalString(
     const nextDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
     const nextDateStr = nextDay.toISOString().split("T")[0].replace(/-/g, "");
 
-    const valarm = event.valarmTrigger || "-PT17H";
-
     ics.push(
       "BEGIN:VEVENT",
       `UID:${event.uid}`,
@@ -45,14 +43,21 @@ export function generateIcalString(
       `SUMMARY:${event.summary}`,
       `DESCRIPTION:${event.description.replace(/\n/g, "\\n")}`,
       "STATUS:CONFIRMED",
-      "TRANSP:TRANSPARENT",
-      "BEGIN:VALARM",
-      "ACTION:DISPLAY",
-      `DESCRIPTION:Reminder: Put out your ${event.summary} tonight!`,
-      `TRIGGER:${valarm}`,
-      "END:VALARM",
-      "END:VEVENT"
+      "TRANSP:TRANSPARENT"
     );
+
+    // Only include VALARM if a trigger is specified and not explicitly set to "none" or null
+    if (event.valarmTrigger && event.valarmTrigger !== "none" && event.valarmTrigger.trim() !== "") {
+      ics.push(
+        "BEGIN:VALARM",
+        "ACTION:DISPLAY",
+        `DESCRIPTION:Reminder: Put out your ${event.summary} tonight!`,
+        `TRIGGER:${event.valarmTrigger}`,
+        "END:VALARM"
+      );
+    }
+
+    ics.push("END:VEVENT");
   }
 
   ics.push("END:VCALENDAR");
@@ -90,7 +95,13 @@ export async function handleIcalFeed(req: Request, res: Response): Promise<void>
     const scheduleKey = userData.scheduleKey;
     const address = userData.address?.singleLineAddress || "My Home";
     const binAliases = userData.customisations?.binAliases || {};
-    const valarmPref = userData.alertPreferences?.valarmTrigger || "-PT17H";
+    
+    // Determine VALARM setting: omit if alerts disabled or set to 'none' / 0
+    const alertPrefs = userData.alertPreferences;
+    const isAlertEnabled = alertPrefs?.enabled !== false && alertPrefs?.leadTimeHours !== 0;
+    const valarmPref = isAlertEnabled && alertPrefs?.valarmTrigger && alertPrefs.valarmTrigger !== "none"
+      ? alertPrefs.valarmTrigger
+      : null;
 
     let collections: Array<{ type: string; date: string }> = [];
 

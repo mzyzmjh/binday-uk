@@ -1,111 +1,139 @@
+import { db, isConfigured } from "./config";
 import {
   doc,
   getDoc,
   setDoc,
   updateDoc,
-  deleteDoc,
   collection,
-  addDoc
+  addDoc,
+  deleteDoc,
+  getDocs,
+  query,
+  where
 } from "firebase/firestore";
-import { db, isConfigured } from "./config";
-import { UserProfile, Address, CouncilConfig, CollectionItem, BinAlias } from "../types";
-import { MOCK_COUNCILS_REGISTRY, generateMockSchedule } from "./mockData";
+import {
+  Address,
+  CouncilConfig,
+  UserProfile,
+  CollectionItem,
+  BinAlias
+} from "../types";
 
-const LOCAL_STORAGE_SCHEDULES_KEY = "binday_local_schedules";
 const LOCAL_STORAGE_USERS_KEY = "binday_local_users";
-
-function getLocalSchedules(): Record<string, CollectionItem[]> {
-  const stored = localStorage.getItem(LOCAL_STORAGE_SCHEDULES_KEY);
-  return stored ? JSON.parse(stored) : {};
-}
-
-function saveLocalSchedules(schedules: Record<string, CollectionItem[]>) {
-  localStorage.setItem(LOCAL_STORAGE_SCHEDULES_KEY, JSON.stringify(schedules));
-}
+const LOCAL_STORAGE_SCHEDULES_KEY = "binday_local_schedules";
 
 function getLocalUsers(): Record<string, UserProfile> {
-  const stored = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
-  return stored ? JSON.parse(stored) : {};
+  const data = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
+  return data ? JSON.parse(data) : {};
 }
 
 function saveLocalUsers(users: Record<string, UserProfile>) {
   localStorage.setItem(LOCAL_STORAGE_USERS_KEY, JSON.stringify(users));
 }
 
-// 1. Address Resolution API Proxy
+function getLocalSchedules(): Record<string, CollectionItem[]> {
+  const data = localStorage.getItem(LOCAL_STORAGE_SCHEDULES_KEY);
+  return data ? JSON.parse(data) : {};
+}
+
+function saveLocalSchedules(schedules: Record<string, CollectionItem[]>) {
+  localStorage.setItem(LOCAL_STORAGE_SCHEDULES_KEY, JSON.stringify(schedules));
+}
+
+// 1. Address Resolution via Postcodes.io & API
 export async function lookupAddresses(postcode: string): Promise<Address[]> {
   const cleanPostcode = postcode.trim().toUpperCase();
+  const cleanNoSpace = cleanPostcode.replace(/\s+/g, "");
 
+  // 1. Try Cloud Functions API proxy
   try {
     const res = await fetch(`/api/addressLookup?postcode=${encodeURIComponent(cleanPostcode)}`);
     if (res.ok) {
       const data = await res.json();
-      if (data.addresses && Array.isArray(data.addresses)) {
+      if (data.addresses && Array.isArray(data.addresses) && data.addresses.length > 0) {
         return data.addresses;
       }
     }
   } catch (e) {
-    // Local dev fallback if functions server isn't running
+    // API endpoint unreachable or running in standalone frontend mode
   }
 
-  // Fallback to rich mock DPA generator
-  const cleanNoSpace = cleanPostcode.replace(/\s+/g, "");
-  let custodian = "4720";
-  let councilName = "Leeds City Council";
+  // 2. Query live Postcodes.io API directly
+  try {
+    const pioRes = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(cleanNoSpace)}`);
+    if (pioRes.ok) {
+      const pioData = await pioRes.json();
+      if (pioData.result) {
+        const adminDistrict = pioData.result.admin_district || "Local Council";
+        const adminCode = pioData.result.codes?.admin_district || "4720";
+        const parish = pioData.result.parish;
+        const streetName = parish && parish !== adminDistrict ? parish : "High Street";
 
-  if (cleanNoSpace.startsWith("M1")) {
-    custodian = "240";
-    councilName = "Manchester City Council";
-  } else if (cleanNoSpace.startsWith("BS")) {
-    custodian = "114";
-    councilName = "Bristol City Council";
-  } else if (cleanNoSpace.startsWith("SW1")) {
-    custodian = "5990";
-    councilName = "City of Westminster";
-  } else if (cleanNoSpace.startsWith("EX1")) {
-    custodian = "9999";
-    councilName = "Example Proprietary Council";
-  } else if (cleanNoSpace.startsWith("ZZ99")) {
-    custodian = "8888";
-    councilName = "Unsupported Glen Council";
+        const houseNumbers = [1, 2, 3, 4, 5, 8, 10, 12, 16, 20, 24, 32, 48];
+        return houseNumbers.map((num) => ({
+          uprn: `1000${cleanNoSpace.slice(-3).charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
+          buildingNumber: num.toString(),
+          thoroughfareName: streetName,
+          singleLineAddress: `${num}, ${streetName}, ${adminDistrict}, ${cleanPostcode}`,
+          postcode: cleanPostcode,
+          custodianCode: adminCode,
+          councilName: adminDistrict.toLowerCase().includes("council") ? adminDistrict : `${adminDistrict} Council`
+        }));
+      }
+    }
+  } catch (e) {
+    console.warn("Postcodes.io direct query fallback failed:", e);
   }
 
-  const numbers = [1, 2, 5, 8, 12, 24, 104];
+  // 3. Fallback for offline / demo mode
+  const numbers = [1, 2, 5, 8, 12, 24];
   return numbers.map((num) => ({
     uprn: `1000${cleanNoSpace.charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
     buildingNumber: num.toString(),
     thoroughfareName: "High Street",
-    singleLineAddress: `${num}, High Street, Townsville, ${cleanPostcode}`,
+    singleLineAddress: `${num}, High Street, Local Area, ${cleanPostcode}`,
     postcode: cleanPostcode,
-    custodianCode: custodian,
-    councilName: councilName
+    custodianCode: "4720",
+    councilName: "Local Council"
   }));
 }
 
 // 2. Council Support Validation
-export async function getCouncilConfig(custodianCode: string): Promise<CouncilConfig> {
+export async function getCouncilConfig(custodianCode: string, councilName?: string): Promise<CouncilConfig> {
   if (isConfigured && db) {
     try {
+      // Try direct match by custodianCode
       const snap = await getDoc(doc(db, "councils", custodianCode));
       if (snap.exists()) {
         return snap.data() as CouncilConfig;
+      }
+
+      // Try searching by name match
+      if (councilName) {
+        const cleanSearch = councilName.toLowerCase().replace(/council|city|borough|district|metropolitan/g, "").trim();
+        const councilsSnap = await getDocs(collection(db, "councils"));
+        for (const docSnap of councilsSnap.docs) {
+          const cData = docSnap.data() as CouncilConfig;
+          const cNameLower = (cData.councilName || "").toLowerCase();
+          if (cNameLower.includes(cleanSearch) || cleanSearch.includes(cNameLower.replace(/council/g, "").trim())) {
+            return cData;
+          }
+        }
       }
     } catch (e) {
       console.warn("Firestore council fetch fallback:", e);
     }
   }
 
-  return (
-    MOCK_COUNCILS_REGISTRY[custodianCode] || {
-      custodianCode,
-      councilName: "UK Local Council",
-      scraperModule: "GenericCouncil",
-      isSupported: true,
-      status: "operational",
-      requiredParams: ["uprn"],
-      requiresProprietaryId: false
-    }
-  );
+  return {
+    custodianCode,
+    councilName: councilName || "UK Local Council",
+    scraperModule: "LeedsCityCouncil",
+    isSupported: true,
+    status: "operational",
+    requiredParams: ["uprn", "postcode"],
+    requiresProprietaryId: false
+  };
 }
 
 // 3. User Profile Management
@@ -242,6 +270,31 @@ export function mapCollectionsWithAliases(
         is_tomorrow: diffDays === 1
       };
     });
+}
+
+function generateMockSchedule(): CollectionItem[] {
+  const today = new Date();
+  const schedule: CollectionItem[] = [];
+
+  const daysToNextTuesday = (2 - today.getDay() + 7) % 7 || 7;
+  const tues1 = new Date(today.getTime() + daysToNextTuesday * 24 * 60 * 60 * 1000);
+  const tues2 = new Date(tues1.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const tues3 = new Date(tues1.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const tues4 = new Date(tues1.getTime() + 21 * 24 * 60 * 60 * 1000);
+
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+  schedule.push({ type: "Refuse", date: fmt(tues1) });
+  schedule.push({ type: "Food Waste", date: fmt(tues1) });
+  schedule.push({ type: "Recycling", date: fmt(tues2) });
+  schedule.push({ type: "Garden Waste", date: fmt(tues2) });
+  schedule.push({ type: "Food Waste", date: fmt(tues2) });
+  schedule.push({ type: "Refuse", date: fmt(tues3) });
+  schedule.push({ type: "Food Waste", date: fmt(tues3) });
+  schedule.push({ type: "Recycling", date: fmt(tues4) });
+  schedule.push({ type: "Food Waste", date: fmt(tues4) });
+
+  return schedule;
 }
 
 // 5. Customisations & Preferences
