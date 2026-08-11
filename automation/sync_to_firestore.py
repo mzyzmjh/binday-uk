@@ -33,10 +33,19 @@ def sync_registry_to_firestore(registry_path: str, dry_run: bool = False):
         from firebase_admin import credentials, firestore
 
         if not firebase_admin._apps:
-            # Check for service account JSON or default credentials
-            service_account_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
-            if service_account_path and os.path.exists(service_account_path):
-                cred = credentials.Certificate(service_account_path)
+            sa_key_str = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY") or os.getenv("GCP_CREDENTIALS")
+            sa_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH") or os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+            if sa_key_str and sa_key_str.strip().startswith("{"):
+                try:
+                    sa_dict = json.loads(sa_key_str)
+                    cred = credentials.Certificate(sa_dict)
+                    firebase_admin.initialize_app(cred)
+                except Exception as e:
+                    print(f"Warning: Could not parse service account JSON string: {e}")
+                    firebase_admin.initialize_app()
+            elif sa_path and os.path.exists(sa_path):
+                cred = credentials.Certificate(sa_path)
                 firebase_admin.initialize_app(cred)
             else:
                 firebase_admin.initialize_app()

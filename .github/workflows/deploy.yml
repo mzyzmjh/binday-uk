@@ -21,19 +21,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Step 3: Run the AST Parser (Updates Firestore Registry)
-      - name: Run Configuration Agent
-        env:
-          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
-        run: |
-          pip install firebase-admin
-          python update_registry.py
-
-      # Step 4: Authenticate with Google Cloud
+      # Step 3: Authenticate with Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Step 4: Run the AST Parser (Updates Firestore Registry)
+      - name: Run Configuration Agent
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          pip install firebase-admin
+          python update_registry.py
 
       # Step 5: Redeploy the Worker Cloud Function
       # This forces Google to rebuild the environment and fetch the latest code

@@ -61,7 +61,13 @@ def main():
                 councils_dir = candidate
                 break
 
-    dry_run_flag = args.dry_run or (not os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY") and not os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH"))
+    has_creds = bool(
+        os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY")
+        or os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
+        or os.getenv("GCP_CREDENTIALS")
+        or os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    )
+    dry_run_flag = args.dry_run or (not has_creds)
 
     run_pipeline_update(
         councils_dir=councils_dir,
