@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Cloud Functions backend for UK Bin Collection Tracker (BinDay)",
   "main": "dist/index.js",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
