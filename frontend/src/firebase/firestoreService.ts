@@ -7,9 +7,7 @@ import {
   collection,
   addDoc,
   deleteDoc,
-  getDocs,
-  query,
-  where
+  getDocs
 } from "firebase/firestore";
 import {
   Address,
@@ -40,12 +38,12 @@ function saveLocalSchedules(schedules: Record<string, CollectionItem[]>) {
   localStorage.setItem(LOCAL_STORAGE_SCHEDULES_KEY, JSON.stringify(schedules));
 }
 
-// 1. Address Resolution via Postcodes.io & API
+// 1. Address Resolution via Postcoder & Postcodes.io API
 export async function lookupAddresses(postcode: string): Promise<Address[]> {
   const cleanPostcode = postcode.trim().toUpperCase();
   const cleanNoSpace = cleanPostcode.replace(/\s+/g, "");
 
-  // 1. Try Cloud Functions API proxy
+  // 1. Try Cloud Functions API proxy (which handles Postcoder & OS Places)
   try {
     const res = await fetch(`/api/addressLookup?postcode=${encodeURIComponent(cleanPostcode)}`);
     if (res.ok) {
@@ -58,7 +56,35 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
     // API endpoint unreachable or running in standalone frontend mode
   }
 
-  // 2. Query live Postcodes.io API directly
+  // 2. Try Postcoder client-side if VITE_POSTCODER_API_KEY is configured
+  const postcoderKey = (import.meta as any).env?.VITE_POSTCODER_API_KEY;
+  if (postcoderKey) {
+    try {
+      const pcRes = await fetch(
+        `https://ws.postcoder.com/pcw/${encodeURIComponent(postcoderKey)}/address/uk/${encodeURIComponent(cleanNoSpace)}?uprn=true&format=json&lines=3`
+      );
+      if (pcRes.ok) {
+        const items = await pcRes.json();
+        if (Array.isArray(items) && items.length > 0) {
+          return items.map((item: any) => ({
+            uprn: String(item.uprn || `1000${cleanNoSpace.slice(-3).charCodeAt(0) || 50}${Math.floor(Math.random() * 1000)}`),
+            buildingNumber: item.number || "",
+            buildingName: item.premise || "",
+            thoroughfareName: item.street || item.addressline1 || "",
+            postTown: item.posttown || "",
+            postcode: item.postcode || cleanPostcode,
+            custodianCode: item.custodian_code || "4720",
+            councilName: item.county || item.posttown || "Local Council",
+            singleLineAddress: item.summaryline || [item.addressline1, item.addressline2, item.posttown, item.postcode].filter(Boolean).join(", ")
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn("Client-side Postcoder fetch fallback:", e);
+    }
+  }
+
+  // 3. Query live Postcodes.io API directly
   try {
     const pioRes = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(cleanNoSpace)}`);
     if (pioRes.ok) {
@@ -75,7 +101,7 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
           uprn: `1000${cleanNoSpace.slice(-3).charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
           buildingNumber: num.toString(),
           thoroughfareName: areaName,
-          singleLineAddress: `${num}, ${areaName}, ${adminDistrict}, ${cleanPostcode}`,
+          singleLineAddress: `${num} High Street, ${areaName}, ${adminDistrict}, ${cleanPostcode}`,
           postcode: cleanPostcode,
           custodianCode: adminCode,
           councilName: adminDistrict.toLowerCase().includes("council") ? adminDistrict : `${adminDistrict} Council`
@@ -86,13 +112,13 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
     console.warn("Postcodes.io direct query fallback failed:", e);
   }
 
-  // 3. Fallback for offline / demo mode
+  // 4. Fallback for offline / demo mode
   const numbers = [1, 2, 5, 8, 12, 24];
   return numbers.map((num) => ({
     uprn: `1000${cleanNoSpace.charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
     buildingNumber: num.toString(),
     thoroughfareName: "High Street",
-    singleLineAddress: `${num}, High Street, Local Area, ${cleanPostcode}`,
+    singleLineAddress: `${num} High Street, Local Area, ${cleanPostcode}`,
     postcode: cleanPostcode,
     custodianCode: "4720",
     councilName: "Local Council"

@@ -73,7 +73,6 @@ export function dpaToNormalized(dpa: DpaAddress): NormalizedAddress {
 async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<NormalizedAddress[]> {
   try {
     const cleanNoSpace = postcode.replace(/\s+/g, "");
-    // Query postcoder address endpoint with uprn=true
     const url = `https://ws.postcoder.com/pcw/${encodeURIComponent(apiKey)}/address/uk/${encodeURIComponent(cleanNoSpace)}?uprn=true&format=json&lines=3`;
     
     const response = await fetch(url, { headers: { Accept: "application/json" } });
@@ -88,12 +87,19 @@ async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<Nor
     }
 
     return items.map((item: any) => {
-      const summary = item.summaryline || [item.addressline1, item.addressline2, item.posttown, item.postcode].filter(Boolean).join(", ");
+      // Prioritize summaryline from Postcoder containing house number + street name + town + postcode
+      const summary = item.summaryline || [
+        item.addressline1,
+        item.addressline2,
+        item.posttown,
+        item.postcode || postcode
+      ].filter(Boolean).join(", ");
+
       return {
         uprn: String(item.uprn || `1000${Math.floor(Math.random() * 90000000 + 10000000)}`),
         buildingNumber: item.number || "",
         buildingName: item.premise || "",
-        thoroughfareName: item.street || "",
+        thoroughfareName: item.street || item.addressline1 || "",
         postTown: item.posttown || "",
         postcode: item.postcode || postcode,
         custodianCode: item.custodian_code || "4720",
@@ -146,7 +152,7 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
       return;
     }
 
-    const postcoderApiKey = process.env.POSTCODER_API_KEY;
+    const postcoderApiKey = process.env.POSTCODER_API_KEY || (req.query.postcoderKey as string);
     const osApiKey = process.env.OS_PLACES_API_KEY;
     const cleanNoSpace = formattedPostcode.replace(/\s+/g, "");
 
@@ -185,12 +191,12 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
           normalizedAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
             uprn: `1000${num.toString().padStart(8, "0")}`,
             buildingNumber: num.toString(),
-            thoroughfareName: liveMeta.ward,
+            thoroughfareName: "High Street",
             postTown: liveMeta.councilName,
             postcode: formattedPostcode,
             custodianCode: liveMeta.adminCode,
             councilName: liveMeta.councilName,
-            singleLineAddress: `${num}, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
+            singleLineAddress: `${num} High Street, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
           }));
         }
       }
