@@ -21,15 +21,14 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
-// API Routes
-app.get("/addressLookup", handleAddressLookup);
-app.get("/ical/:token", handleIcalFeed);
-app.get("/ical", handleIcalFeed);
-app.get("/schedule", handleJsonSchedule);
-app.post("/regenerateTokens", handleRegenerateTokens);
+// API Routes (supports both direct /api/ and rewritten paths)
+app.get(["/addressLookup", "/api/addressLookup"], handleAddressLookup);
+app.get(["/ical/:token", "/api/ical/:token", "/ical", "/api/ical"], handleIcalFeed);
+app.get(["/schedule", "/api/schedule"], handleJsonSchedule);
+app.post(["/regenerateTokens", "/api/regenerateTokens"], handleRegenerateTokens);
 
 // User profile & GDPR endpoints
-app.post("/initUser", async (req, res) => {
+app.post(["/initUser", "/api/initUser"], async (req, res) => {
   try {
     const result = await initializeUserProfile(req.body);
     res.status(200).json(result);
@@ -39,7 +38,7 @@ app.post("/initUser", async (req, res) => {
   }
 });
 
-app.post("/deleteUser", async (req, res) => {
+app.post(["/deleteUser", "/api/deleteUser"], async (req, res) => {
   try {
     const { uid } = req.body;
     if (!uid) {

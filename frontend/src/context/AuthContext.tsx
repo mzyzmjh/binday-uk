@@ -14,7 +14,8 @@ import {
   updateAlertPreferences,
   updateWebhooks,
   regenerateUserTokens,
-  exportUserDataJson
+  exportUserDataJson,
+  createOrInitUserProfile
 } from "../firebase/firestoreService";
 
 interface AuthContextType {
@@ -43,6 +44,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saved = getStoredSessionUser();
     if (saved) {
       setUser(saved);
+      // Proactively sync existing profile to Firestore and ensure server record
+      createOrInitUserProfile({
+        uid: saved.uid,
+        email: saved.email,
+        displayName: saved.displayName,
+        address: saved.address,
+        privacyPolicyAccepted: saved.gdpr?.privacyPolicyAccepted ?? true
+      }).catch((err) => console.warn("Background session sync notice:", err));
     }
     setLoading(false);
   }, []);
