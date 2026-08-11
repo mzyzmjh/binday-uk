@@ -66,15 +66,16 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
       if (pioData.result) {
         const adminDistrict = pioData.result.admin_district || "Local Council";
         const adminCode = pioData.result.codes?.admin_district || "4720";
-        const parish = pioData.result.parish;
-        const streetName = parish && parish !== adminDistrict ? parish : "High Street";
+        const rawWard = pioData.result.admin_ward || "";
+        const ward = rawWard.toLowerCase().includes("unparished") ? "" : rawWard;
+        const areaName = ward || adminDistrict;
 
-        const houseNumbers = [1, 2, 3, 4, 5, 8, 10, 12, 16, 20, 24, 32, 48];
+        const houseNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 30, 48];
         return houseNumbers.map((num) => ({
           uprn: `1000${cleanNoSpace.slice(-3).charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
           buildingNumber: num.toString(),
-          thoroughfareName: streetName,
-          singleLineAddress: `${num}, ${streetName}, ${adminDistrict}, ${cleanPostcode}`,
+          thoroughfareName: areaName,
+          singleLineAddress: `${num}, ${areaName}, ${adminDistrict}, ${cleanPostcode}`,
           postcode: cleanPostcode,
           custodianCode: adminCode,
           councilName: adminDistrict.toLowerCase().includes("council") ? adminDistrict : `${adminDistrict} Council`

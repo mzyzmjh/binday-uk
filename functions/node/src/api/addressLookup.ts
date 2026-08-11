@@ -70,16 +70,21 @@ export function dpaToNormalized(dpa: DpaAddress): NormalizedAddress {
   };
 }
 
-async function lookupPostcodeViaPostcodesIo(postcode: string): Promise<{ councilName: string; adminCode: string } | null> {
+async function lookupPostcodeViaPostcodesIo(postcode: string): Promise<{ councilName: string; adminCode: string; ward: string } | null> {
   try {
     const clean = postcode.replace(/\s+/g, "");
     const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(clean)}`);
     if (res.ok) {
       const data = await res.json();
       if (data.result) {
+        const district = data.result.admin_district || "Local Council";
+        const rawWard = data.result.admin_ward || "";
+        const ward = rawWard.toLowerCase().includes("unparished") ? "" : rawWard;
+
         return {
-          councilName: data.result.admin_district || "Local Council",
-          adminCode: data.result.codes?.admin_district || "4720"
+          councilName: district.toLowerCase().includes("council") ? district : `${district} Council`,
+          adminCode: data.result.codes?.admin_district || "4720",
+          ward: ward || district
         };
       }
     }
@@ -137,15 +142,15 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
     if (normalized.length === 0 || dpaResults === getMockDpaForPostcode("DEFAULT")) {
       const liveMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
       if (liveMeta) {
-        normalized = [1, 2, 3, 5, 8, 12, 24].map((num) => ({
+        normalized = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
           uprn: `1000${num.toString().padStart(8, "0")}`,
           buildingNumber: num.toString(),
-          thoroughfareName: "Main Street",
+          thoroughfareName: liveMeta.ward,
           postTown: liveMeta.councilName,
           postcode: formattedPostcode,
           custodianCode: liveMeta.adminCode,
           councilName: liveMeta.councilName,
-          singleLineAddress: `${num}, Main Street, ${liveMeta.councilName}, ${formattedPostcode}`
+          singleLineAddress: `${num}, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
         }));
       }
     }
