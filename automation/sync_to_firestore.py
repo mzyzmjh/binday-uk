@@ -39,8 +39,10 @@ def sync_registry_to_firestore(registry_path: str, dry_run: bool = False):
             if sa_key_str and sa_key_str.strip().startswith("{"):
                 try:
                     sa_dict = json.loads(sa_key_str)
+                    project_id = sa_dict.get("project_id")
+                    print(f"Initializing Firestore for Project ID: {project_id}")
                     cred = credentials.Certificate(sa_dict)
-                    firebase_admin.initialize_app(cred)
+                    firebase_admin.initialize_app(cred, {"projectId": project_id} if project_id else None)
                 except Exception as e:
                     print(f"Warning: Could not parse service account JSON string: {e}")
                     firebase_admin.initialize_app()
