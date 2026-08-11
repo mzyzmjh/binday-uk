@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "schedules",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "nextScrapeDue",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "errorCount",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "councils",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isSupported",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "councilName",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

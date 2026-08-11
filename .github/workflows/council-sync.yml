@@ -1,0 +1,48 @@
+name: Daily Council Scraper Sync & AST Parser
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Run daily at 03:00 UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  sync-councils:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout BinDay Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install firebase-admin gitpython
+
+      - name: Clone Upstream UKBinCollectionData
+        run: |
+          git clone --depth 1 https://github.com/robbrad/UKBinCollectionData.git temp_upstream
+
+      - name: Run AST Scraper Parser
+        run: |
+          python automation/ast_parser.py \
+            --councils-dir temp_upstream/uk_bin_collection/uk_bin_collection/councils \
+            --mapping-file automation/council_mapping.json \
+            --output automation/councils_registry.json
+
+      - name: Sync Updated Registry to Firestore
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > service_account.json
+            FIREBASE_SERVICE_ACCOUNT_PATH=service_account.json python automation/sync_to_firestore.py --registry-file automation/councils_registry.json
+            rm -f service_account.json
+          else
+            echo "FIREBASE_SERVICE_ACCOUNT_KEY not set. Running in dry-run mode."
+            python automation/sync_to_firestore.py --registry-file automation/councils_registry.json --dry-run
+          fi

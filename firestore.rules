@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Council registry is publicly readable so pre-auth onboarding can check support
+    match /councils/{custodianCode} {
+      allow read: if true;
+      allow write: if false; // Only written via Admin SDK / AST sync
+    }
+
+    // Cached collection schedules are readable by authenticated users
+    match /schedules/{scheduleKey} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only written by Scraper Engine Cloud Function
+    }
+
+    // Users can read and update only their own profile
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // Feature requests / waitlist submissions can be created by anyone
+    match /featureRequests/{requestId} {
+      allow create: if request.resource.data.email is string 
+                    && request.resource.data.postcode is string;
+      allow read, update, delete: if false; // Admin only
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

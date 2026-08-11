@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#0f172a"/>
+  <circle cx="256" cy="256" r="180" fill="url(#grad)" opacity="0.15"/>
+  <path d="M140 170h232" stroke="#22c55e" stroke-width="28" stroke-linecap="round"/>
+  <path d="M340 170v200c0 18-14 32-32 32H204c-18 0-32-14-32-32V170" stroke="#22c55e" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M210 170v-30c0-12 10-22 22-22h48c12 0 22 10 22 22v30" stroke="#22c55e" stroke-width="28" stroke-linecap="round"/>
+  <line x1="225" y1="230" x2="225" y2="330" stroke="#22c55e" stroke-width="24" stroke-linecap="round"/>
+  <line x1="287" y1="230" x2="287" y2="330" stroke="#22c55e" stroke-width="24" stroke-linecap="round"/>
+  <defs>
+    <radialGradient id="grad" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#0f172a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

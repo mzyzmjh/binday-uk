@@ -1,0 +1,48 @@
+name: Unified Deploy - Agent & Scraper
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Get the latest code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Python for the Agent
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Step 3: Run the AST Parser (Updates Firestore Registry)
+      - name: Run Configuration Agent
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          pip install firebase-admin
+          python update_registry.py
+
+      # Step 4: Authenticate with Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Step 5: Redeploy the Worker Cloud Function
+      # This forces Google to rebuild the environment and fetch the latest code
+      - name: Deploy Scraper Worker to Cloud Functions
+        uses: google-github-actions/deploy-cloud-functions@v2
+        with:
+          name: execute-scraper-worker
+          runtime: python310
+          entry_point: process_pubsub_message
+          source_dir: ./backend/worker
+          trigger_topic: scrape_jobs
+          max_instances: 5

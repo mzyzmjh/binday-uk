@@ -1,0 +1,278 @@
+{
+  "4720": {
+    "custodianCode": "4720",
+    "councilName": "Leeds City Council",
+    "scraperModule": "LeedsCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "240": {
+    "custodianCode": "240",
+    "councilName": "Manchester City Council",
+    "scraperModule": "ManchesterCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "114": {
+    "custodianCode": "114",
+    "councilName": "Bristol City Council",
+    "scraperModule": "BristolCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "5990": {
+    "custodianCode": "5990",
+    "councilName": "City of Westminster",
+    "scraperModule": "WestminsterCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "4605": {
+    "custodianCode": "4605",
+    "councilName": "Birmingham City Council",
+    "scraperModule": "BirminghamCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "2372": {
+    "custodianCode": "2372",
+    "councilName": "Sheffield City Council",
+    "scraperModule": "SheffieldCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "1780": {
+    "custodianCode": "1780",
+    "councilName": "Liverpool City Council",
+    "scraperModule": "LiverpoolCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "3825": {
+    "custodianCode": "3825",
+    "councilName": "Newcastle City Council",
+    "scraperModule": "NewcastleCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "1005": {
+    "custodianCode": "1005",
+    "councilName": "Cheshire East Council",
+    "scraperModule": "CheshireEastCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "1010": {
+    "custodianCode": "1010",
+    "councilName": "Cheshire West and Chester Council",
+    "scraperModule": "CheshireWestAndChesterCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "4305": {
+    "custodianCode": "4305",
+    "councilName": "City of York Council",
+    "scraperModule": "YorkCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn",
+      "postcode"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "3455": {
+    "custodianCode": "3455",
+    "councilName": "Oxford City Council",
+    "scraperModule": "OxfordCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "650": {
+    "custodianCode": "650",
+    "councilName": "Cambridge City Council",
+    "scraperModule": "CambridgeCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "1205": {
+    "custodianCode": "1205",
+    "councilName": "Cornwall Council",
+    "scraperModule": "CornwallCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "2280": {
+    "custodianCode": "2280",
+    "councilName": "Nottingham City Council",
+    "scraperModule": "NottinghamCityCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "5900": {
+    "custodianCode": "5900",
+    "councilName": "London Borough of Camden",
+    "scraperModule": "CamdenCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "5660": {
+    "custodianCode": "5660",
+    "councilName": "Royal Borough of Kensington and Chelsea",
+    "scraperModule": "KensingtonAndChelseaCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "uprn"
+    ],
+    "requiresProprietaryId": false,
+    "proprietaryIdLabel": null,
+    "proprietaryIdHelpUrl": null,
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  },
+  "9999": {
+    "custodianCode": "9999",
+    "councilName": "Example Proprietary Council",
+    "scraperModule": "ExampleProprietaryCouncil",
+    "isSupported": true,
+    "status": "operational",
+    "requiredParams": [
+      "web_id"
+    ],
+    "requiresProprietaryId": true,
+    "proprietaryIdLabel": "Council Reference ID",
+    "proprietaryIdHelpUrl": "https://example.gov.uk/find-my-bin-id",
+    "lastUpdatedFromAst": "2026-08-11T00:00:00Z",
+    "failureRate24h": 0.0
+  }
+}

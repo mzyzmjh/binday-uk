@@ -1,0 +1,27 @@
+{
+  "name": "binday-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions backend for UK Bin Collection Tracker (BinDay)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "node --test dist/**/*.test.js || ts-node test_runner.ts",
+    "serve": "firebase emulators:start --only functions"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.1.0",
+    "firebase-functions": "^6.3.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.3"
+  },
+  "private": true
+}
