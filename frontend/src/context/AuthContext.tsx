@@ -15,7 +15,8 @@ import {
   updateWebhooks,
   regenerateUserTokens,
   exportUserDataJson,
-  createOrInitUserProfile
+  createOrInitUserProfile,
+  updateUserAddress
 } from "../firebase/firestoreService";
 
 interface AuthContextType {
@@ -26,6 +27,7 @@ interface AuthContextType {
   loginGoogle: (address?: Address, privacyAccepted?: boolean) => Promise<UserProfile>;
   loginDemo: (address?: Address) => Promise<UserProfile>;
   logout: () => Promise<void>;
+  changeAddress: (newAddress: Address) => Promise<UserProfile>;
   updateAliases: (aliases: Record<string, BinAlias>) => Promise<void>;
   updateAlerts: (prefs: { enabled: boolean; leadTimeHours: number; valarmTrigger: string }) => Promise<void>;
   updateWebhooksConfig: (webhooks: Array<{ id: string; url: string; enabled: boolean; secret?: string }>) => Promise<void>;
@@ -105,6 +107,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const changeAddress = async (newAddress: Address): Promise<UserProfile> => {
+    if (!user) throw new Error("No active session");
+    const updated = await updateUserAddress(user.uid, newAddress);
+    const resolved = updated || { ...user, address: newAddress };
+    setUser(resolved);
+    return resolved;
+  };
+
   const updateAliases = async (aliases: Record<string, BinAlias>) => {
     if (!user) return;
     await updateBinAliases(user.uid, aliases);
@@ -160,6 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loginGoogle,
         loginDemo,
         logout,
+        changeAddress,
         updateAliases,
         updateAlerts,
         updateWebhooksConfig,

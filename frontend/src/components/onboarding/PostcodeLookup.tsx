@@ -1,18 +1,10 @@
 import React, { useState } from "react";
-import { Search, Loader2, MapPin, Sparkles } from "lucide-react";
+import { Search, Loader2, MapPin, Sparkles, ShieldCheck } from "lucide-react";
 
 interface PostcodeLookupProps {
   onSearch: (postcode: string) => Promise<void>;
   isLoading: boolean;
 }
-
-export const SAMPLE_POSTCODES = [
-  { postcode: "LS26 8XX", name: "Leeds", tag: "Supported" },
-  { postcode: "M1 1AA", name: "Manchester", tag: "Supported" },
-  { postcode: "BS1 5AH", name: "Bristol", tag: "Supported" },
-  { postcode: "EX1 1ID", name: "Exeter Ref", tag: "Proprietary ID" },
-  { postcode: "ZZ99 9ZZ", name: "Highlands", tag: "Unsupported Demo" }
-];
 
 export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoading }) => {
   const [postcodeInput, setPostcodeInput] = useState<string>("");
@@ -42,25 +34,19 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
 
     const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
     if (!ukPostcodeRegex.test(clean)) {
-      setValidationError("Please enter a valid UK postcode (e.g. LS26 8XX).");
+      setValidationError("Please enter a valid UK postcode (e.g. LS26 8XX or SW1A 1AA).");
       return;
     }
 
     await onSearch(clean);
   };
 
-  const handleQuickSample = async (pc: string) => {
-    setPostcodeInput(pc);
-    setValidationError(null);
-    await onSearch(pc);
-  };
-
   return (
-    <div className="max-w-2xl mx-auto text-center">
+    <div className="max-w-2xl mx-auto text-center animate-fade-in">
       {/* Hero Badge */}
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-6 animate-fade-in">
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-6">
         <Sparkles className="w-3.5 h-3.5" />
-        <span>Automated UK Council Bin Scraping & Calendar Sync</span>
+        <span>Automated UK Council Bin Scraping & Calendar Feeds</span>
       </div>
 
       {/* Main Title */}
@@ -73,7 +59,7 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
       </p>
 
       {/* Postcode Form */}
-      <form onSubmit={handleSubmit} className="glass-card p-2 sm:p-3 max-w-xl mx-auto mb-6">
+      <form onSubmit={handleSubmit} className="glass-card p-2.5 sm:p-3 max-w-xl mx-auto mb-4">
         <div className="flex flex-col sm:flex-row items-center gap-2">
           <div className="relative w-full flex-1">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -117,20 +103,10 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
         )}
       </form>
 
-      {/* Quick Sample Postcodes */}
-      <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
-        <span className="font-medium mr-1">Quick demo postcodes:</span>
-        {SAMPLE_POSTCODES.map((item) => (
-          <button
-            key={item.postcode}
-            type="button"
-            onClick={() => handleQuickSample(item.postcode)}
-            disabled={isLoading}
-            className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all font-mono active:scale-95"
-          >
-            {item.postcode} <span className="text-[10px] text-slate-400">({item.name})</span>
-          </button>
-        ))}
+      {/* Privacy Notice Subtext */}
+      <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+        <ShieldCheck className="w-4 h-4 text-emerald-500/60" />
+        <span>No sign-up required to search your address and check council compatibility.</span>
       </div>
     </div>
   );

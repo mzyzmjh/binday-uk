@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { Trash2, Download, RotateCcw, ShieldAlert, AlertTriangle, X } from "lucide-react";
+import { Trash2, Download, RotateCcw, ShieldAlert, AlertTriangle, X, Home, Bug, MapPin } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-export const DangerZone: React.FC<{ onShowToast?: (title: string, message: string) => void }> = ({ onShowToast }) => {
-  const { downloadData, resetTokens, deleteAccount } = useAuth();
+interface DangerZoneProps {
+  onShowToast?: (title: string, message: string) => void;
+  onOpenChangeAddress?: () => void;
+  onOpenBugReport?: () => void;
+}
+
+export const DangerZone: React.FC<DangerZoneProps> = ({
+  onShowToast,
+  onOpenChangeAddress,
+  onOpenBugReport
+}) => {
+  const { user, downloadData, resetTokens, deleteAccount } = useAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmInput, setConfirmInput] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -40,134 +50,193 @@ export const DangerZone: React.FC<{ onShowToast?: (title: string, message: strin
   };
 
   return (
-    <div className="glass-card p-6 border-rose-500/30 space-y-6">
-      <div>
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-rose-400" />
-          <span>GDPR Privacy & Account Management</span>
-        </h3>
-        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-          Manage your personal data portability, rotate compromised feed URLs, or exercise your right to permanent account erasure.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* GDPR Data Portability Export */}
-        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <Download className="w-4 h-4 text-sky-400" />
-              <span>Download My Data (JSON)</span>
-            </span>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Under GDPR Article 20, download a full machine-readable JSON archive of your profile, address records, customisations, and collection history.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Data Archive</span>
-          </button>
-        </div>
-
-        {/* Token Revocation / Reset */}
-        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <RotateCcw className="w-4 h-4 text-amber-400" />
-              <span>Regenerate Secret Tokens</span>
-            </span>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Immediately revoke and rotate your calendar subscription URL and Home Assistant API token if accidentally shared or exposed.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleResetTokens}
-            disabled={resetting}
-            className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-400"
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />
-            <span>{resetting ? "Rotating..." : "Reset All Tokens"}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Account Erasure (Danger Zone) */}
-      <div className="pt-4 border-t border-rose-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Property & Address Management */}
+      <div className="glass-card p-6 border-emerald-900/40 space-y-4">
         <div>
-          <span className="text-xs font-bold text-rose-300 block">Delete Account & All Data</span>
-          <span className="text-[11px] text-slate-400">
-            Permanently delete your profile, webhook endpoints, and linked schedule records. This action cannot be undone.
-          </span>
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <Home className="w-5 h-5 text-emerald-400" />
+            <span>Property & Address</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            Moved house or selected the wrong flat? You can change your registered property at any time.
+          </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowDeleteModal(true)}
-          className="btn-danger text-xs py-2 px-4 shrink-0 flex items-center gap-1.5"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>Delete Account</span>
-        </button>
+        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-white font-bold text-xs">
+              <MapPin className="w-4 h-4 text-emerald-400" />
+              <span>{user?.address?.singleLineAddress || "No address set"}</span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-mono">
+              Council: {user?.address?.councilName} • UPRN: {user?.address?.uprn}
+            </p>
+          </div>
+
+          {onOpenChangeAddress && (
+            <button
+              type="button"
+              onClick={onOpenChangeAddress}
+              className="btn-primary text-xs py-2 px-4 shrink-0 flex items-center gap-1.5"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span>Change Address</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-          <div className="glass-card max-w-md w-full p-6 border-rose-500/40 relative animate-slide-up space-y-4">
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      {/* GDPR Privacy & Token Management */}
+      <div className="glass-card p-6 border-rose-500/30 space-y-6">
+        <div>
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-rose-400" />
+            <span>GDPR Privacy & Account Management</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            Manage your personal data portability, rotate secret feed tokens, or report issues.
+          </p>
+        </div>
 
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-base font-bold text-white">Permanently Delete Account?</h4>
-                <p className="text-xs text-slate-400">GDPR Right to Erasure</p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* GDPR Data Portability Export */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Download className="w-4 h-4 text-sky-400" />
+                <span>Download My Data (JSON)</span>
+              </span>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Under GDPR Article 20, export a full machine-readable JSON archive of your profile and schedule history.
+              </p>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
-              This will immediately hard-delete your user record, calendar subscription feed, and all custom preferences from our database.
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Archive</span>
+            </button>
+          </div>
+
+          {/* Token Revocation / Reset */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <RotateCcw className="w-4 h-4 text-amber-400" />
+                <span>Regenerate Secret Tokens</span>
+              </span>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Immediately revoke and rotate your calendar URL and API tokens if accidentally shared.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetTokens}
+              disabled={resetting}
+              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-400"
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />
+              <span>{resetting ? "Rotating..." : "Reset Tokens"}</span>
+            </button>
+          </div>
+
+          {/* Bug Report */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Bug className="w-4 h-4 text-amber-400" />
+                <span>Report an Issue</span>
+              </span>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Found incorrect collection dates or a bug? Submit a report with automatic diagnostics.
+              </p>
+            </div>
+
+            {onOpenBugReport && (
+              <button
+                type="button"
+                onClick={onOpenBugReport}
+                className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-300"
+              >
+                <Bug className="w-3.5 h-3.5" />
+                <span>Report Bug</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Account Deletion */}
+        <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>Permanent Account Erasure</span>
+            </span>
+            <p className="text-[11px] text-rose-300/70 mt-0.5">
+              Permanently hard-delete your account profile, customized aliases, and webhooks under GDPR Article 17.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="px-4 py-2 bg-rose-600/20 border border-rose-500/40 hover:bg-rose-600 text-rose-200 hover:text-white rounded-xl text-xs font-bold transition-all shrink-0"
+          >
+            Delete Account
+          </button>
+        </div>
+      </div>
+
+      {/* Account Deletion Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+                <AlertTriangle className="w-5 h-5" />
+                <span>Permanent Account Deletion</span>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300">
+              This action cannot be undone. All your profile settings, custom aliases, and calendar subscription feeds will be immediately erased.
             </p>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Type <span className="font-mono text-rose-400 font-bold">DELETE</span> to confirm:
+            <div className="space-y-1.5">
+              <label className="text-[11px] text-slate-400">
+                Type <strong className="text-rose-400 font-mono">DELETE</strong> to confirm:
               </label>
               <input
                 type="text"
                 value={confirmInput}
                 onChange={(e) => setConfirmInput(e.target.value)}
                 placeholder="DELETE"
-                className="w-full px-3.5 py-2 bg-slate-950 border border-rose-500/40 rounded-xl text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-rose-500"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
-                type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="btn-secondary text-xs py-2 px-4"
+                className="btn-secondary text-xs py-2 px-3"
               >
                 Cancel
               </button>
               <button
-                type="button"
                 onClick={handleDeleteAccount}
                 disabled={confirmInput !== "DELETE" || deleting}
-                className="btn-danger text-xs py-2 px-5 disabled:opacity-50"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all"
               >
                 {deleting ? "Deleting..." : "Permanently Delete"}
               </button>

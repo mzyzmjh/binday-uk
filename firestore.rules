@@ -38,6 +38,12 @@ service cloud.firestore {
       allow read, update, delete: if false; // Admin only
     }
 
+    // Bug reports can be submitted by anyone
+    match /bugReports/{reportId} {
+      allow create: if request.resource.data.description is string;
+      allow read, update, delete: if false; // Admin only
+    }
+
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

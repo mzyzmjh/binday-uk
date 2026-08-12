@@ -83,6 +83,54 @@ export function generateIcalString(
   return ics.join("\r\n") + "\r\n";
 }
 
+function resolveBinAlias(
+  rawType: string,
+  aliases: Record<string, { alias?: string; color?: string }>
+): { alias?: string; color?: string } | undefined {
+  if (!rawType || !aliases) return undefined;
+  
+  // 1. Direct exact key match
+  if (aliases[rawType]) return aliases[rawType];
+
+  const cleanRaw = rawType.toLowerCase().trim();
+
+  // 2. Case-insensitive key match
+  for (const [key, val] of Object.entries(aliases)) {
+    if (key.toLowerCase().trim() === cleanRaw) return val;
+  }
+
+  // 3. Keyword / semantic fuzzy match for standard UK bin streams
+  for (const [key, val] of Object.entries(aliases)) {
+    const k = key.toLowerCase();
+    if (
+      (cleanRaw.includes("refuse") || cleanRaw.includes("black") || cleanRaw.includes("residual") || cleanRaw.includes("general") || cleanRaw.includes("domestic")) &&
+      (k.includes("refuse") || k.includes("general") || k.includes("black"))
+    ) {
+      return val;
+    }
+    if (
+      (cleanRaw.includes("recycle") || cleanRaw.includes("recycling") || cleanRaw.includes("blue") || cleanRaw.includes("green") || cleanRaw.includes("paper") || cleanRaw.includes("glass") || cleanRaw.includes("dry")) &&
+      (k.includes("recycl") || k.includes("blue") || k.includes("green"))
+    ) {
+      return val;
+    }
+    if (
+      (cleanRaw.includes("food") || cleanRaw.includes("caddy") || cleanRaw.includes("organic")) &&
+      (k.includes("food") || k.includes("caddy"))
+    ) {
+      return val;
+    }
+    if (
+      (cleanRaw.includes("garden") || cleanRaw.includes("brown") || cleanRaw.includes("yard") || cleanRaw.includes("compost")) &&
+      (k.includes("garden") || k.includes("brown"))
+    ) {
+      return val;
+    }
+  }
+
+  return undefined;
+}
+
 function generateFallbackCollections(): Array<{ type: string; date: string }> {
   const today = new Date();
   const schedule: Array<{ type: string; date: string }> = [];
@@ -137,7 +185,7 @@ export async function handleIcalFeed(req: Request, res: Response): Promise<void>
       const icsBody = generateIcalString("Bin Collections - BinDay Demo", demoEvents);
       res.set({
         "Content-Type": "text/calendar; charset=utf-8",
-        "Content-Disposition": 'inline; filename="binday-schedule.ics"',
+        "Content-Disposition": 'attachment; filename="binday-schedule.ics"',
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "private, max-age=3600"
       });
@@ -210,7 +258,7 @@ export async function handleIcalFeed(req: Request, res: Response): Promise<void>
     }
 
     const events: IcalEventData[] = collections.map((col, idx) => {
-      const custom = binAliases[col.type];
+      const custom = resolveBinAlias(col.type, binAliases);
       const displayName = custom?.alias ? custom.alias : col.type;
       const colorHex = custom?.color;
 

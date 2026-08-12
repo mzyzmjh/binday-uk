@@ -502,3 +502,89 @@ export async function deleteUserAndData(uid: string): Promise<void> {
   delete localUsers[uid];
   saveLocalUsers(localUsers);
 }
+
+// 10. Bug Reporting Function
+export async function submitBugReport(report: {
+  category: string;
+  description: string;
+  contactEmail: string;
+  metadata: Record<string, any>;
+}): Promise<void> {
+  const payload = {
+    ...report,
+    createdAt: new Date().toISOString()
+  };
+
+  if (isConfigured && db) {
+    try {
+      await addDoc(collection(db, "bugReports"), payload);
+      return;
+    } catch (e) {
+      console.warn("Firestore bug report save fallback:", e);
+    }
+  }
+
+  const stored = localStorage.getItem("binday_bug_reports");
+  const list = stored ? JSON.parse(stored) : [];
+  list.push(payload);
+  localStorage.setItem("binday_bug_reports", JSON.stringify(list));
+}
+
+// 11. Change / Update User Address
+export async function updateUserAddress(
+  uid: string,
+  newAddress: Address
+): Promise<UserProfile | null> {
+  const scheduleKey = `${newAddress.custodianCode}_${newAddress.proprietaryId || newAddress.uprn}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const now = new Date().toISOString();
+
+  // 1. Trigger backend initUser to register address & start scraper for new property
+  try {
+    const res = await fetch("/api/initUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        email: "update@binday.app",
+        address: newAddress,
+        privacyPolicyAccepted: true
+      })
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      if (updated) {
+        const localUsers = getLocalUsers();
+        localUsers[uid] = updated;
+        saveLocalUsers(localUsers);
+        return updated;
+      }
+    }
+  } catch (err) {
+    console.warn("Backend initUser update error:", err);
+  }
+
+  // 2. Client-side Firestore update
+  if (isConfigured && db) {
+    try {
+      await updateDoc(doc(db, "users", uid), {
+        address: newAddress,
+        scheduleKey,
+        updatedAt: now
+      });
+    } catch (e) {
+      console.warn("Firestore update address fallback:", e);
+    }
+  }
+
+  const localUsers = getLocalUsers();
+  if (localUsers[uid]) {
+    localUsers[uid].address = newAddress;
+    localUsers[uid].scheduleKey = scheduleKey;
+    localUsers[uid].updatedAt = now;
+    saveLocalUsers(localUsers);
+    return localUsers[uid];
+  }
+
+  return null;
+}
+

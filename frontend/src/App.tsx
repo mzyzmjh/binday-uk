@@ -14,6 +14,9 @@ import { WaitlistForm } from "./components/onboarding/WaitlistForm";
 import { AuthModal } from "./components/auth/AuthModal";
 import { PrivacyPolicyModal } from "./components/legal/PrivacyPolicyModal";
 import { TermsModal } from "./components/legal/TermsModal";
+import { AboutModal } from "./components/legal/AboutModal";
+import { BugReportModal } from "./components/common/BugReportModal";
+import { ChangeAddressModal } from "./components/settings/ChangeAddressModal";
 
 // Dashboard & Settings
 import { NextCollectionHero } from "./components/dashboard/NextCollectionHero";
@@ -29,7 +32,7 @@ import { DangerZone } from "./components/settings/DangerZone";
 
 import { lookupAddresses, getCouncilConfig } from "./firebase/firestoreService";
 import { Address, CouncilConfig } from "./types";
-import { Calendar, Shield, Sparkles, Smartphone, Cpu, CheckCircle2 } from "lucide-react";
+import { Calendar, Shield, Sparkles, Smartphone, Cpu, CheckCircle2, Heart, Bug, Info } from "lucide-react";
 
 const MainAppContent: React.FC = () => {
   const { user } = useAuth();
@@ -50,6 +53,9 @@ const MainAppContent: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
+  const [showBugModal, setShowBugModal] = useState<boolean>(false);
+  const [showChangeAddressModal, setShowChangeAddressModal] = useState<boolean>(false);
   const [showProprietaryModal, setShowProprietaryModal] = useState<boolean>(false);
 
   // Toasts
@@ -105,6 +111,9 @@ const MainAppContent: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenAuth={() => setShowAuthModal(true)}
+        onOpenAbout={() => setShowAboutModal(true)}
+        onOpenBugReport={() => setShowBugModal(true)}
+        onOpenChangeAddress={() => setShowChangeAddressModal(true)}
       />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
@@ -142,11 +151,15 @@ const MainAppContent: React.FC = () => {
               </div>
             )}
 
-            {/* Tab: Settings & Danger Zone */}
+            {/* Tab: Settings & Property Management */}
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <NotificationSettings onShowToast={addToast} />
-                <DangerZone onShowToast={addToast} />
+                <DangerZone
+                  onShowToast={addToast}
+                  onOpenChangeAddress={() => setShowChangeAddressModal(true)}
+                  onOpenBugReport={() => setShowBugModal(true)}
+                />
               </div>
             )}
           </div>
@@ -200,7 +213,7 @@ const MainAppContent: React.FC = () => {
               </div>
 
               <div className="glass-card p-5 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                   <Cpu className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-white">Smart Home & Home Assistant</h4>
@@ -210,7 +223,7 @@ const MainAppContent: React.FC = () => {
               </div>
 
               <div className="glass-card p-5 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600/10 border border-emerald-600/30 flex items-center justify-center text-emerald-400">
                   <Shield className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-white">100% GDPR Compliant</h4>
@@ -229,15 +242,34 @@ const MainAppContent: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-300">BinDay UK</span>
             <span>•</span>
-            <span>Powered by robbrad/UKBinCollectionData</span>
+            <button
+              onClick={() => setShowAboutModal(true)}
+              className="text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>Personal Project (robbrad/UKBinCollectionData)</span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <button
+              onClick={() => setShowBugModal(true)}
+              className="hover:text-amber-400 flex items-center gap-1 text-slate-400 transition-colors"
+            >
+              <Bug className="w-3.5 h-3.5" />
+              <span>Report Issue</span>
+            </button>
+            <button
+              onClick={() => setShowAboutModal(true)}
+              className="hover:text-emerald-400 flex items-center gap-1 text-slate-400 transition-colors"
+            >
+              <Info className="w-3.5 h-3.5" />
+              <span>About</span>
+            </button>
             <button
               onClick={() => setShowPrivacyModal(true)}
               className="hover:text-slate-300 underline"
             >
-              Privacy Policy (GDPR)
+              Privacy Policy
             </button>
             <button
               onClick={() => setShowTermsModal(true)}
@@ -275,6 +307,29 @@ const MainAppContent: React.FC = () => {
 
       {showTermsModal && (
         <TermsModal onClose={() => setShowTermsModal(false)} />
+      )}
+
+      {showAboutModal && (
+        <AboutModal
+          isOpen={showAboutModal}
+          onClose={() => setShowAboutModal(false)}
+        />
+      )}
+
+      {showBugModal && (
+        <BugReportModal
+          isOpen={showBugModal}
+          onClose={() => setShowBugModal(false)}
+          onShowToast={addToast}
+        />
+      )}
+
+      {showChangeAddressModal && (
+        <ChangeAddressModal
+          isOpen={showChangeAddressModal}
+          onClose={() => setShowChangeAddressModal(false)}
+          onShowToast={addToast}
+        />
       )}
 
       {showProprietaryModal && selectedCouncilConfig && (
