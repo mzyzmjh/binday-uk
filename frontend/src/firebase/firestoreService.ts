@@ -154,8 +154,8 @@ export async function getCouncilConfig(custodianCode: string, councilName?: stri
 
   return {
     custodianCode,
-    councilName: councilName || "UK Local Council",
-    scraperModule: "LeedsCityCouncil",
+    councilName: councilName || "Local Authority Council",
+    scraperModule: "UKCouncilScraper",
     isSupported: true,
     status: "operational",
     requiredParams: ["uprn", "postcode"],

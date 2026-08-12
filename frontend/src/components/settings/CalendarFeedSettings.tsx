@@ -52,13 +52,13 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
   };
 
   return (
-    <div className="glass-card p-6 border-slate-800 space-y-6">
+    <div className="glass-card p-6 border-stone-200 shadow-sm space-y-6">
       <div>
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-emerald-400" />
+        <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-emerald-700" />
           <span>Live Calendar Subscription (iCal / WebCal)</span>
         </h3>
-        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+        <p className="text-xs text-stone-600 mt-1 leading-relaxed font-medium">
           Subscribe once and let your phone's calendar stay automatically updated with custom bin names, colors, and alerts.
         </p>
       </div>
@@ -70,59 +70,59 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
           href={googleCalendarUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-800/60 hover:border-blue-500/80 text-white font-semibold text-xs shadow-lg transition-all group hover:scale-[1.01]"
+          className="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 hover:border-blue-400 text-stone-900 font-bold text-xs shadow-sm transition-all group hover:scale-[1.01]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-8 h-8 rounded-xl bg-blue-600/10 border border-blue-300 flex items-center justify-center text-blue-700">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19.5 3h-3V1.5H15V3H9V1.5H7.5V3h-3C3.675 3 3 3.675 3 4.5v15c0 .825.675 1.5 1.5 1.5h15c.825 0 1.5-.675 1.5-1.5v-15c0-.825-.675-1.5-1.5-1.5zm0 16.5h-15V8.25h15v11.25z"/>
               </svg>
             </div>
             <div>
-              <div className="font-bold text-white group-hover:text-blue-300 transition-colors">
+              <div className="font-black text-stone-900 group-hover:text-blue-800 transition-colors">
                 Add to Google Calendar
               </div>
-              <div className="text-[10px] text-slate-400 font-normal">
+              <div className="text-[10px] text-stone-500 font-medium">
                 1-Click live auto-updating subscription
               </div>
             </div>
           </div>
-          <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+          <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-blue-700 transition-colors" />
         </a>
 
         {/* Apple Calendar 1-Click */}
         <a
           href={webcalUrl}
-          className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-slate-900/80 to-slate-950/80 border border-slate-700/60 hover:border-emerald-500/80 text-white font-semibold text-xs shadow-lg transition-all group hover:scale-[1.01]"
+          className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200 hover:border-emerald-400 text-stone-900 font-bold text-xs shadow-sm transition-all group hover:scale-[1.01]"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800">
               <Smartphone className="w-4 h-4" />
             </div>
             <div>
-              <div className="font-bold text-white group-hover:text-emerald-300 transition-colors">
+              <div className="font-black text-stone-900 group-hover:text-emerald-800 transition-colors">
                 Subscribe on iPhone / Mac
               </div>
-              <div className="text-[10px] text-slate-400 font-normal">
+              <div className="text-[10px] text-stone-500 font-medium">
                 Opens native Apple Calendar
               </div>
             </div>
           </div>
-          <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+          <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-emerald-700 transition-colors" />
         </a>
       </div>
 
       {/* Manual Subscription URLs */}
-      <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-4">
-        <label className="block text-xs font-semibold text-slate-300">
+      <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-4 shadow-sm">
+        <label className="block text-xs font-bold text-stone-800">
           Or Copy Your Unique Calendar URL Manually
         </label>
 
         {/* HTTPS URL */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center justify-between text-[11px] text-stone-600 font-medium">
             <span className="flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-blue-400" />
+              <Globe className="w-3.5 h-3.5 text-blue-700" />
               Standard HTTPS URL (Google Calendar / Outlook / Thunderbird)
             </span>
           </div>
@@ -131,11 +131,11 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
               type="text"
               readOnly
               value={httpsUrl}
-              className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-blue-400 font-mono text-xs select-all focus:outline-none"
+              className="flex-1 px-3 py-2 bg-white border border-stone-300 rounded-xl text-blue-800 font-mono text-xs select-all focus:outline-none shadow-sm font-semibold"
             />
             <button
               onClick={() => handleCopy(httpsUrl, "https")}
-              className="btn-primary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5"
+              className="btn-primary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5 cursor-pointer"
             >
               {copiedHttps ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedHttps ? "Copied!" : "Copy HTTPS"}</span>
@@ -145,9 +145,9 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
 
         {/* Webcal URL */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center justify-between text-[11px] text-stone-600 font-medium">
             <span className="flex items-center gap-1.5">
-              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              <Smartphone className="w-3.5 h-3.5 text-emerald-700" />
               WebCal URL (Apple Calendar / iOS / macOS)
             </span>
           </div>
@@ -156,11 +156,11 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
               type="text"
               readOnly
               value={webcalUrl}
-              className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono text-xs select-all focus:outline-none"
+              className="flex-1 px-3 py-2 bg-white border border-stone-300 rounded-xl text-emerald-800 font-mono text-xs select-all focus:outline-none shadow-sm font-semibold"
             />
             <button
               onClick={() => handleCopy(webcalUrl, "webcal")}
-              className="btn-secondary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5"
+              className="btn-secondary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5 cursor-pointer"
             >
               {copiedWebcal ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedWebcal ? "Copied!" : "Copy WebCal"}</span>
@@ -169,13 +169,13 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
         </div>
 
         {/* Setup Help Guide */}
-        <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
-          <div className="font-semibold text-slate-300 flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+        <div className="p-3 rounded-lg bg-white border border-stone-200 text-[11px] text-stone-600 space-y-1.5 shadow-sm">
+          <div className="font-bold text-stone-800 flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5 text-amber-700" />
             How to manually subscribe in Google Calendar:
           </div>
-          <ol className="list-decimal list-inside space-y-1 pl-1 text-slate-400">
-            <li>Open <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="text-blue-400 underline">Google Calendar on desktop</a>.</li>
+          <ol className="list-decimal list-inside space-y-1 pl-1 text-stone-600 font-medium">
+            <li>Open <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="text-blue-700 font-semibold underline">Google Calendar on desktop</a>.</li>
             <li>On the left sidebar, click the <strong>+</strong> next to <em>Other calendars</em> $\rightarrow$ <strong>From URL</strong>.</li>
             <li>Paste your <strong>HTTPS URL</strong> above and click <strong>Add calendar</strong>.</li>
           </ol>
@@ -183,12 +183,12 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
       </div>
 
       {/* Default Alert Timing (VALARM) */}
-      <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
-        <div className="flex items-center gap-2 text-xs font-bold text-white">
-          <Bell className="w-4 h-4 text-emerald-400" />
+      <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-3 shadow-sm">
+        <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
+          <Bell className="w-4 h-4 text-emerald-700" />
           <span>Automatic Calendar Notification (VALARM)</span>
         </div>
-        <p className="text-xs text-slate-300">
+        <p className="text-xs text-stone-600 font-medium">
           When subscribed, your calendar will automatically send you a notification reminding you to put your bins out.
         </p>
 
@@ -202,10 +202,10 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
             <button
               key={item.hours}
               onClick={() => handleLeadTimeChange(item.hours, item.trigger)}
-              className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${
+              className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                 leadTime === item.hours
-                  ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-300"
-                  : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  ? "bg-emerald-100 border-emerald-400 text-emerald-900 shadow-sm"
+                  : "bg-white border-stone-200 text-stone-600 hover:border-stone-300 hover:text-stone-900 shadow-sm"
               }`}
             >
               {item.label}

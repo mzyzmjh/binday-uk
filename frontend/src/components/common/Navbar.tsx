@@ -22,73 +22,73 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-emerald-950/40 bg-slate-950/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-stone-200/90 bg-white/90 backdrop-blur-xl shadow-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <div
           onClick={() => setActiveTab("dashboard")}
           className="flex items-center gap-3 cursor-pointer select-none group"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-amber-700 flex items-center justify-center shadow-lg shadow-emerald-900/30 ring-1 ring-emerald-400/30 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-amber-700 flex items-center justify-center shadow-md shadow-emerald-900/10 ring-1 ring-emerald-600/20 group-hover:scale-105 transition-transform">
             <Trash2 className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-black text-lg tracking-tight text-white group-hover:text-emerald-300 transition-colors">BinDay</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">UK</span>
+              <span className="font-black text-lg tracking-tight text-emerald-950 group-hover:text-emerald-700 transition-colors">BinDay</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">UK</span>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium hidden sm:block">Smart Council Collection Tracker</p>
+            <p className="text-[11px] text-stone-500 font-medium hidden sm:block">Smart Council Collection Tracker</p>
           </div>
         </div>
 
         {/* User Navigation Tabs (when logged in) */}
         {user ? (
-          <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800/80 shadow-inner">
+          <nav className="hidden md:flex items-center gap-1 bg-stone-100/90 p-1 rounded-2xl border border-stone-200/80 shadow-inner">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "dashboard"
-                  ? "bg-emerald-900/40 text-emerald-300 border border-emerald-500/30 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-emerald-800 border border-emerald-300/80 shadow-sm"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar className="w-3.5 h-3.5 text-emerald-600" />
               <span>Schedule</span>
             </button>
 
             <button
               onClick={() => setActiveTab("customizer")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "customizer"
-                  ? "bg-emerald-900/40 text-emerald-300 border border-emerald-500/30 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-emerald-800 border border-emerald-300/80 shadow-sm"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Palette className="w-3.5 h-3.5" />
+              <Palette className="w-3.5 h-3.5 text-amber-600" />
               <span>Bin Colors</span>
             </button>
 
             <button
               onClick={() => setActiveTab("integrations")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "integrations"
-                  ? "bg-emerald-900/40 text-emerald-300 border border-emerald-500/30 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-emerald-800 border border-emerald-300/80 shadow-sm"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Link2 className="w-3.5 h-3.5" />
+              <Link2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>Sync & Feeds</span>
             </button>
 
             <button
               onClick={() => setActiveTab("settings")}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "settings"
-                  ? "bg-emerald-900/40 text-emerald-300 border border-emerald-500/30 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-emerald-800 border border-emerald-300/80 shadow-sm"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings className="w-3.5 h-3.5 text-stone-600" />
               <span>Settings</span>
             </button>
           </nav>
@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenAbout}
             title="About & Open-Source Credits"
-            className="p-2 rounded-xl text-slate-400 hover:text-emerald-400 hover:bg-slate-800/80 transition-colors"
+            className="p-2 rounded-xl text-stone-500 hover:text-emerald-700 hover:bg-stone-100 transition-colors"
             aria-label="About BinDay"
           >
             <Info className="w-4 h-4" />
@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenBugReport}
             title="Report a Bug or Incorrect Date"
-            className="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-slate-800/80 transition-colors"
+            className="p-2 rounded-xl text-stone-500 hover:text-amber-700 hover:bg-amber-50 transition-colors"
             aria-label="Report a Bug"
           >
             <Bug className="w-4 h-4" />
@@ -122,21 +122,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenChangeAddress}
                 title="Click to Change Address"
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/50 text-xs transition-all cursor-pointer group shadow-xs"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200/80 border border-stone-300/80 text-xs transition-all cursor-pointer group shadow-sm"
               >
-                <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="text-slate-300 group-hover:text-white font-medium truncate max-w-[160px]">
+                <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-stone-700 group-hover:text-stone-900 font-semibold truncate max-w-[160px]">
                   {user.address.buildingNumber ? `${user.address.buildingNumber} ` : ""}
                   {user.address.thoroughfareName || user.address.postcode}
                 </span>
-                <span className="text-[10px] text-emerald-400/80 font-bold ml-0.5">Edit</span>
+                <span className="text-[10px] text-emerald-700 font-bold ml-0.5">Edit</span>
               </button>
 
               {/* Logout Button */}
               <button
                 onClick={logout}
                 title="Log Out"
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
+                className="p-2 rounded-xl text-stone-500 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all"
                 aria-label="Log Out"
               >
                 <LogOut className="w-4 h-4" />

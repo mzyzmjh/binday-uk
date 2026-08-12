@@ -19,23 +19,23 @@ export const PrivacyConsentCheckbox: React.FC<PrivacyConsentCheckboxProps> = ({
   return (
     <div className={`p-3 rounded-xl border transition-all ${
       error
-        ? "bg-rose-950/20 border-rose-500/50"
-        : "bg-slate-900/60 border-slate-800 hover:border-slate-700"
+        ? "bg-rose-50 border-rose-300"
+        : "bg-stone-50 border-stone-200 hover:border-stone-300 shadow-sm"
     }`}>
       <label className="flex items-start gap-2.5 cursor-pointer select-none">
         <button
           type="button"
           onClick={() => onChange(!checked)}
-          className="mt-0.5 text-emerald-400 hover:text-emerald-300 shrink-0 focus:outline-none"
+          className="mt-0.5 text-emerald-700 hover:text-emerald-900 shrink-0 focus:outline-none cursor-pointer"
         >
           {checked ? (
-            <CheckSquare className="w-4 h-4 fill-emerald-500/20" />
+            <CheckSquare className="w-4 h-4 fill-emerald-100" />
           ) : (
-            <Square className={`w-4 h-4 ${error ? "text-rose-400" : "text-slate-500"}`} />
+            <Square className={`w-4 h-4 ${error ? "text-rose-500" : "text-stone-400"}`} />
           )}
         </button>
 
-        <div className="text-xs text-slate-300 leading-normal">
+        <div className="text-xs text-stone-700 leading-normal font-medium">
           <span>I agree to the </span>
           <button
             type="button"
@@ -43,7 +43,7 @@ export const PrivacyConsentCheckbox: React.FC<PrivacyConsentCheckboxProps> = ({
               e.stopPropagation();
               onOpenTerms();
             }}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2"
+            className="text-emerald-800 hover:text-emerald-950 font-bold underline underline-offset-2 cursor-pointer"
           >
             Terms of Service
           </button>
@@ -54,11 +54,11 @@ export const PrivacyConsentCheckbox: React.FC<PrivacyConsentCheckboxProps> = ({
               e.stopPropagation();
               onOpenPrivacy();
             }}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2"
+            className="text-emerald-800 hover:text-emerald-950 font-bold underline underline-offset-2 cursor-pointer"
           >
             Privacy Policy
           </button>
-          <span className="text-slate-500 text-[10px] block mt-0.5">
+          <span className="text-stone-500 text-[10px] block mt-0.5">
             (GDPR Compliant • We only store your address for bin collection sync)
           </span>
         </div>

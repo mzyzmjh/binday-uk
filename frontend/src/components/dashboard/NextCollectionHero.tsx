@@ -10,10 +10,10 @@ interface NextCollectionHeroProps {
 export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule, councilName }) => {
   if (!schedule || schedule.length === 0) {
     return (
-      <div className="glass-card p-8 text-center text-slate-400">
-        <Calendar className="w-8 h-8 mx-auto mb-2 text-slate-500" />
-        <p className="text-sm font-semibold text-slate-300">No upcoming collections scheduled</p>
-        <p className="text-xs text-slate-500 mt-1">We are syncing your schedule with {councilName}.</p>
+      <div className="glass-card p-8 text-center text-stone-500">
+        <Calendar className="w-8 h-8 mx-auto mb-2 text-stone-400" />
+        <p className="text-sm font-bold text-stone-800">No upcoming collections scheduled</p>
+        <p className="text-xs text-stone-500 mt-1">We are syncing your schedule with {councilName}.</p>
       </div>
     );
   }
@@ -38,13 +38,13 @@ export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule
     actionLabel = "Put out tonight";
   }
 
-  const primaryColor = nextBins[0]?.color || "#22c55e";
+  const primaryColor = nextBins[0]?.color || "#16a34a";
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-emerald-900/40 bg-gradient-to-br from-slate-900/95 via-emerald-950/20 to-stone-950/90 p-6 sm:p-8 shadow-2xl backdrop-blur-xl animate-fade-in">
+    <div className="relative overflow-hidden rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/90 via-white to-amber-50/40 p-6 sm:p-8 shadow-md shadow-emerald-950/5 backdrop-blur-xl animate-fade-in">
       {/* Background glow accent */}
       <div
-        className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none transition-colors duration-500"
+        className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-15 pointer-events-none transition-colors duration-500"
         style={{ backgroundColor: primaryColor }}
       />
 
@@ -53,7 +53,7 @@ export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm ${
                 daysUntil <= 1 ? "animate-pulse-subtle" : ""
               }`}
               style={{ backgroundColor: primaryColor }}
@@ -62,16 +62,16 @@ export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule
               <span>Next Collection: {countdownText}</span>
             </span>
 
-            <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+            <span className="text-xs text-stone-500 font-medium hidden sm:inline">
               • {councilName}
             </span>
           </div>
 
           <div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-black text-stone-900 tracking-tight">
               {formattedDay}
             </h2>
-            <p className="text-base text-slate-300 font-medium mt-0.5">
+            <p className="text-base text-stone-600 font-semibold mt-0.5">
               {formattedFullDate}
             </p>
           </div>
@@ -81,17 +81,17 @@ export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule
             {nextBins.map((bin, idx) => (
               <div
                 key={idx}
-                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-800/80 border border-emerald-900/30 shadow-sm"
+                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/95 border border-stone-200 shadow-sm"
               >
                 <div
-                  className="w-4 h-4 rounded-full border-2 border-white/40 shrink-0 shadow-sm"
-                  style={{ backgroundColor: bin.color || "#22c55e" }}
+                  className="w-4 h-4 rounded-full border border-stone-300 shrink-0 shadow-sm"
+                  style={{ backgroundColor: bin.color || "#16a34a" }}
                 />
-                <span className="text-sm font-bold text-white">
+                <span className="text-sm font-bold text-stone-800">
                   {bin.display_name || bin.type}
                 </span>
                 {bin.raw_type && bin.raw_type !== bin.display_name && (
-                  <span className="text-[10px] text-slate-400 font-mono">
+                  <span className="text-[10px] text-stone-400 font-mono">
                     ({bin.raw_type})
                   </span>
                 )}
@@ -105,23 +105,23 @@ export const NextCollectionHero: React.FC<NextCollectionHeroProps> = ({ schedule
           {nextBins.map((bin, idx) => (
             <div
               key={idx}
-              className={`flex flex-col items-center justify-center p-4 rounded-2xl border bg-slate-950/60 backdrop-blur-md min-w-[110px] shadow-lg text-center transition-all ${
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border bg-white/95 min-w-[115px] shadow-sm text-center transition-all ${
                 daysUntil === 1 
-                  ? "border-amber-500/50 ring-2 ring-amber-500/20 bg-amber-950/20" 
-                  : "border-slate-800/80"
+                  ? "border-amber-400 ring-2 ring-amber-200 bg-amber-50/70" 
+                  : "border-stone-200"
               }`}
             >
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-2 shadow-inner ring-1 ring-white/10"
-                style={{ backgroundColor: bin.color || "#22c55e" }}
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-2 shadow-sm ring-1 ring-black/5"
+                style={{ backgroundColor: bin.color || "#16a34a" }}
               >
                 <Trash2 className="w-7 h-7 stroke-[2.2]" />
               </div>
-              <span className="text-xs font-bold text-white max-w-[100px] truncate">
+              <span className="text-xs font-bold text-stone-800 max-w-[105px] truncate">
                 {bin.display_name || bin.type}
               </span>
-              <span className={`text-[10px] font-medium mt-0.5 ${
-                daysUntil === 1 ? "text-amber-300 font-bold" : "text-slate-400"
+              <span className={`text-[10px] font-semibold mt-0.5 ${
+                daysUntil === 1 ? "text-amber-800 font-bold" : "text-stone-500"
               }`}>
                 {actionLabel}
               </span>

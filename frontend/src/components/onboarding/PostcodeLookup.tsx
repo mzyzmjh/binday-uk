@@ -34,7 +34,7 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
 
     const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
     if (!ukPostcodeRegex.test(clean)) {
-      setValidationError("Please enter a valid UK postcode (e.g. LS26 8XX or SW1A 1AA).");
+      setValidationError("Please enter a valid UK postcode (e.g. LS26 8XX or NG17 2LS).");
       return;
     }
 
@@ -44,36 +44,36 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
   return (
     <div className="max-w-2xl mx-auto text-center animate-fade-in">
       {/* Hero Badge */}
-      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-6">
-        <Sparkles className="w-3.5 h-3.5" />
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-200 text-emerald-800 text-xs font-bold mb-6 shadow-sm">
+        <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
         <span>Automated UK Council Bin Scraping & Calendar Feeds</span>
       </div>
 
       {/* Main Title */}
-      <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">
+      <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-stone-900 mb-4">
         Never miss <span className="gradient-text-brand">bin day</span> again.
       </h1>
       
-      <p className="text-slate-300 text-base sm:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+      <p className="text-stone-600 text-base sm:text-lg mb-8 max-w-xl mx-auto leading-relaxed font-medium">
         Look up your UK address, personalize your physical bin colors, and get live calendar alerts straight to your phone.
       </p>
 
       {/* Postcode Form */}
-      <form onSubmit={handleSubmit} className="glass-card p-2.5 sm:p-3 max-w-xl mx-auto mb-4">
+      <form onSubmit={handleSubmit} className="glass-card p-2.5 sm:p-3 max-w-xl mx-auto mb-4 border-stone-300/80 shadow-md shadow-emerald-950/5">
         <div className="flex flex-col sm:flex-row items-center gap-2">
           <div className="relative w-full flex-1">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400">
               <MapPin className="w-5 h-5" />
             </div>
             <input
               type="text"
               value={postcodeInput}
               onChange={handleInputChange}
-              placeholder="e.g. LS26 8XX"
+              placeholder="e.g. LS26 8XX or NG17 2LS"
               disabled={isLoading}
               maxLength={8}
               autoFocus
-              className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 font-semibold uppercase tracking-wider text-base focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-stone-300 rounded-xl text-stone-900 placeholder-stone-400 font-bold uppercase tracking-wider text-base focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 shadow-sm"
             />
           </div>
 
@@ -97,15 +97,15 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
         </div>
 
         {validationError && (
-          <p className="text-xs text-rose-400 font-medium text-left mt-2 pl-2">
+          <p className="text-xs text-rose-600 font-semibold text-left mt-2 pl-2">
             {validationError}
           </p>
         )}
       </form>
 
       {/* Privacy Notice Subtext */}
-      <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
-        <ShieldCheck className="w-4 h-4 text-emerald-500/60" />
+      <div className="flex items-center justify-center gap-2 text-xs text-stone-500 font-medium">
+        <ShieldCheck className="w-4 h-4 text-emerald-700" />
         <span>No sign-up required to search your address and check council compatibility.</span>
       </div>
     </div>

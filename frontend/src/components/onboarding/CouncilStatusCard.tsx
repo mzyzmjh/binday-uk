@@ -22,38 +22,38 @@ export const CouncilStatusCard: React.FC<CouncilStatusCardProps> = ({
   const needsProprietary = councilConfig.requiresProprietaryId && !proprietaryId;
 
   return (
-    <div className="glass-card p-6 border-emerald-500/30 max-w-xl mx-auto mt-6 animate-slide-up">
+    <div className="glass-card p-6 border-emerald-200 shadow-sm max-w-xl mx-auto mt-6 animate-slide-up">
       {/* Header status */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
-          <ShieldCheck className="w-6 h-6 text-emerald-400" />
+        <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0 text-emerald-800">
+          <ShieldCheck className="w-6 h-6" />
         </div>
 
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
               Council Supported
             </span>
             {isDegraded && (
-              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
                 Service Degraded
               </span>
             )}
           </div>
-          <h3 className="text-lg font-bold text-white">
-            We track collections for {councilConfig.councilName}
+          <h3 className="text-lg font-black text-stone-900">
+            We track collections for {address.councilName || councilConfig.councilName}
           </h3>
-          <p className="text-xs text-slate-300 mt-0.5">
-            Selected Address: <span className="text-slate-100 font-semibold">{address.singleLineAddress}</span>
+          <p className="text-xs text-stone-600 mt-0.5">
+            Selected Address: <span className="text-stone-900 font-bold">{address.singleLineAddress}</span>
           </p>
         </div>
       </div>
 
       {/* Proprietary ID notice if required */}
       {councilConfig.requiresProprietaryId && (
-        <div className="p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/30 mb-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-amber-300">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 mb-4 flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-2 text-xs text-amber-900 font-medium">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700" />
             <span>
               {proprietaryId
                 ? `Reference ID set: ${proprietaryId}`
@@ -63,7 +63,7 @@ export const CouncilStatusCard: React.FC<CouncilStatusCardProps> = ({
 
           <button
             onClick={onOpenProprietaryModal}
-            className="text-xs font-bold text-amber-400 hover:text-amber-300 underline shrink-0 flex items-center gap-1"
+            className="text-xs font-bold text-amber-800 hover:text-amber-900 underline shrink-0 flex items-center gap-1 cursor-pointer"
           >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>{proprietaryId ? "Edit ID" : "Enter ID"}</span>

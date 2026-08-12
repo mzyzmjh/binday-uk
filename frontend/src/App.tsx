@@ -91,7 +91,7 @@ const MainAppContent: React.FC = () => {
 
   const handleSelectAddress = async (addr: Address) => {
     setSelectedAddress(addr);
-    const config = await getCouncilConfig(addr.custodianCode);
+    const config = await getCouncilConfig(addr.custodianCode, addr.councilName);
     setSelectedCouncilConfig(config);
   };
 
@@ -104,7 +104,7 @@ const MainAppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#f7f9f6] text-stone-800 selection:bg-emerald-600 selection:text-white">
       <PwaInstallPrompt />
 
       <Navbar
@@ -201,33 +201,33 @@ const MainAppContent: React.FC = () => {
             )}
 
             {/* Feature Highlights Grid for Visitors */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8 border-t border-slate-800/80">
-              <div className="glass-card p-5 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8 border-t border-stone-200">
+              <div className="glass-card p-5 space-y-2 border-emerald-100">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-800">
                   <Calendar className="w-5 h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-white">Apple & Google Calendar Sync</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Subscribe with standard <span className="font-mono text-emerald-400">webcal://</span> feeds. Native 19:00 night-before push alerts directly on your smartphone.
+                <h4 className="text-sm font-bold text-stone-900">Apple & Google Calendar Sync</h4>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Subscribe with standard <span className="font-mono text-emerald-700 font-semibold">webcal://</span> feeds. Native 19:00 night-before push alerts directly on your smartphone.
                 </p>
               </div>
 
-              <div className="glass-card p-5 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="glass-card p-5 space-y-2 border-amber-100">
+                <div className="w-10 h-10 rounded-xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-800">
                   <Cpu className="w-5 h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-white">Smart Home & Home Assistant</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h4 className="text-sm font-bold text-stone-900">Smart Home & Home Assistant</h4>
+                <p className="text-xs text-stone-600 leading-relaxed">
                   Dedicated token-secured JSON endpoints and Webhooks for automations, e-ink dashboard displays, and LED status lights.
                 </p>
               </div>
 
-              <div className="glass-card p-5 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600/10 border border-emerald-600/30 flex items-center justify-center text-emerald-400">
+              <div className="glass-card p-5 space-y-2 border-emerald-100">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-800">
                   <Shield className="w-5 h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-white">100% GDPR Compliant</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h4 className="text-sm font-bold text-stone-900">100% GDPR Compliant</h4>
+                <p className="text-xs text-stone-600 leading-relaxed">
                   Zero tracking cookies. Instant one-click JSON data export (Article 20) and permanent right to erasure (Article 17).
                 </p>
               </div>
@@ -237,14 +237,14 @@ const MainAppContent: React.FC = () => {
       </main>
 
       {/* App Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/60 py-6 text-xs text-slate-500">
+      <footer className="border-t border-stone-200 bg-white/80 py-6 text-xs text-stone-500 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">BinDay UK</span>
+            <span className="font-bold text-stone-800">BinDay UK</span>
             <span>•</span>
             <button
               onClick={() => setShowAboutModal(true)}
-              className="text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+              className="text-emerald-700 hover:underline flex items-center gap-1 font-semibold"
             >
               <span>Personal Project (robbrad/UKBinCollectionData)</span>
             </button>
@@ -253,27 +253,27 @@ const MainAppContent: React.FC = () => {
           <div className="flex items-center gap-4 flex-wrap justify-center">
             <button
               onClick={() => setShowBugModal(true)}
-              className="hover:text-amber-400 flex items-center gap-1 text-slate-400 transition-colors"
+              className="hover:text-amber-800 flex items-center gap-1 text-stone-600 transition-colors font-medium"
             >
-              <Bug className="w-3.5 h-3.5" />
+              <Bug className="w-3.5 h-3.5 text-amber-700" />
               <span>Report Issue</span>
             </button>
             <button
               onClick={() => setShowAboutModal(true)}
-              className="hover:text-emerald-400 flex items-center gap-1 text-slate-400 transition-colors"
+              className="hover:text-emerald-800 flex items-center gap-1 text-stone-600 transition-colors font-medium"
             >
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-3.5 h-3.5 text-emerald-700" />
               <span>About</span>
             </button>
             <button
               onClick={() => setShowPrivacyModal(true)}
-              className="hover:text-slate-300 underline"
+              className="hover:text-stone-900 underline text-stone-500"
             >
               Privacy Policy
             </button>
             <button
               onClick={() => setShowTermsModal(true)}
-              className="hover:text-slate-300 underline"
+              className="hover:text-stone-900 underline text-stone-500"
             >
               Terms of Service
             </button>

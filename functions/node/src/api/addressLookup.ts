@@ -70,7 +70,11 @@ export function dpaToNormalized(dpa: DpaAddress): NormalizedAddress {
   };
 }
 
-async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<NormalizedAddress[]> {
+async function lookupViaPostcoder(
+  postcode: string,
+  apiKey: string,
+  districtMeta?: { councilName: string; adminCode: string; ward: string } | null
+): Promise<NormalizedAddress[]> {
   try {
     const cleanNoSpace = postcode.replace(/\s+/g, "");
     const url = `https://ws.postcoder.com/pcw/${encodeURIComponent(apiKey)}/address/uk/${encodeURIComponent(cleanNoSpace)}?uprn=true&format=json&lines=3`;
@@ -95,6 +99,9 @@ async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<Nor
         item.postcode || postcode
       ].filter(Boolean).join(", ");
 
+      const resolvedCouncil = districtMeta?.councilName || item.county || item.posttown || "Local Council";
+      const resolvedCustodian = item.custodian_code || districtMeta?.adminCode || "4720";
+
       return {
         uprn: String(item.uprn || `1000${Math.floor(Math.random() * 90000000 + 10000000)}`),
         buildingNumber: item.number || "",
@@ -102,8 +109,8 @@ async function lookupViaPostcoder(postcode: string, apiKey: string): Promise<Nor
         thoroughfareName: item.street || item.addressline1 || "",
         postTown: item.posttown || "",
         postcode: item.postcode || postcode,
-        custodianCode: item.custodian_code || "4720",
-        councilName: item.county || item.posttown || "Local Council",
+        custodianCode: resolvedCustodian,
+        councilName: resolvedCouncil,
         singleLineAddress: summary
       };
     });
@@ -156,11 +163,14 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
     const osApiKey = process.env.OS_PLACES_API_KEY;
     const cleanNoSpace = formattedPostcode.replace(/\s+/g, "");
 
+    // Concurrently fetch district metadata from Postcodes.io for authoritative council name
+    const districtMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
+
     let normalizedAddresses: NormalizedAddress[] = [];
 
     // 1. Try Postcoder API if key is present
     if (postcoderApiKey) {
-      normalizedAddresses = await lookupViaPostcoder(formattedPostcode, postcoderApiKey);
+      normalizedAddresses = await lookupViaPostcoder(formattedPostcode, postcoderApiKey, districtMeta);
     }
 
     // 2. Try OS Places API if OS key is present and Postcoder was not used

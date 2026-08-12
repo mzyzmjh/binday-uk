@@ -52,25 +52,25 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
   return (
     <div className="space-y-6">
       {/* Property & Address Management */}
-      <div className="glass-card p-6 border-emerald-900/40 space-y-4">
+      <div className="glass-card p-6 border-stone-200 shadow-sm space-y-4">
         <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Home className="w-5 h-5 text-emerald-400" />
+          <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+            <Home className="w-5 h-5 text-emerald-700" />
             <span>Property & Address</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+          <p className="text-xs text-stone-600 mt-1 leading-relaxed font-medium">
             Moved house or selected the wrong flat? You can change your registered property at any time.
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-white font-bold text-xs">
-              <MapPin className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center gap-2 text-stone-900 font-bold text-xs">
+              <MapPin className="w-4 h-4 text-emerald-700" />
               <span>{user?.address?.singleLineAddress || "No address set"}</span>
             </div>
-            <p className="text-[11px] text-slate-400 font-mono">
-              Council: {user?.address?.councilName} • UPRN: {user?.address?.uprn}
+            <p className="text-[11px] text-stone-500 font-medium">
+              Council: <span className="font-semibold text-stone-700">{user?.address?.councilName}</span> • UPRN: <span className="font-mono">{user?.address?.uprn}</span>
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
             <button
               type="button"
               onClick={onOpenChangeAddress}
-              className="btn-primary text-xs py-2 px-4 shrink-0 flex items-center gap-1.5"
+              className="btn-primary text-xs py-2 px-4 shrink-0 flex items-center gap-1.5 cursor-pointer"
             >
               <Home className="w-3.5 h-3.5" />
               <span>Change Address</span>
@@ -88,26 +88,26 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
       </div>
 
       {/* GDPR Privacy & Token Management */}
-      <div className="glass-card p-6 border-rose-500/30 space-y-6">
+      <div className="glass-card p-6 border-stone-200 shadow-sm space-y-6">
         <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-rose-400" />
+          <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-rose-600" />
             <span>GDPR Privacy & Account Management</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+          <p className="text-xs text-stone-600 mt-1 leading-relaxed font-medium">
             Manage your personal data portability, rotate secret feed tokens, or report issues.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* GDPR Data Portability Export */}
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2 flex flex-col justify-between shadow-sm">
             <div>
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Download className="w-4 h-4 text-sky-400" />
+              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                <Download className="w-4 h-4 text-sky-700" />
                 <span>Download My Data (JSON)</span>
               </span>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 mt-1 font-medium">
                 Under GDPR Article 20, export a full machine-readable JSON archive of your profile and schedule history.
               </p>
             </div>
@@ -115,7 +115,7 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
             <button
               type="button"
               onClick={handleDownload}
-              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2"
+              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export Archive</span>
@@ -123,13 +123,13 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
           </div>
 
           {/* Token Revocation / Reset */}
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2 flex flex-col justify-between shadow-sm">
             <div>
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <RotateCcw className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                <RotateCcw className="w-4 h-4 text-amber-700" />
                 <span>Regenerate Secret Tokens</span>
               </span>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 mt-1 font-medium">
                 Immediately revoke and rotate your calendar URL and API tokens if accidentally shared.
               </p>
             </div>
@@ -138,7 +138,7 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
               type="button"
               onClick={handleResetTokens}
               disabled={resetting}
-              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-400"
+              className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-700 cursor-pointer"
             >
               <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />
               <span>{resetting ? "Rotating..." : "Reset Tokens"}</span>
@@ -146,13 +146,13 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
           </div>
 
           {/* Bug Report */}
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2 flex flex-col justify-between shadow-sm">
             <div>
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Bug className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                <Bug className="w-4 h-4 text-amber-700" />
                 <span>Report an Issue</span>
               </span>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 mt-1 font-medium">
                 Found incorrect collection dates or a bug? Submit a report with automatic diagnostics.
               </p>
             </div>
@@ -161,9 +161,9 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
               <button
                 type="button"
                 onClick={onOpenBugReport}
-                className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-300"
+                className="btn-secondary text-xs py-2 px-3 self-start flex items-center gap-1.5 mt-2 hover:text-amber-800 cursor-pointer"
               >
-                <Bug className="w-3.5 h-3.5" />
+                <Bug className="w-3.5 h-3.5 text-amber-700" />
                 <span>Report Bug</span>
               </button>
             )}
@@ -171,13 +171,13 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
         </div>
 
         {/* Account Deletion */}
-        <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div>
-            <span className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
-              <Trash2 className="w-4 h-4 text-rose-400" />
+            <span className="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+              <Trash2 className="w-4 h-4 text-rose-600" />
               <span>Permanent Account Erasure</span>
             </span>
-            <p className="text-[11px] text-rose-300/70 mt-0.5">
+            <p className="text-[11px] text-rose-700/80 mt-0.5 font-medium">
               Permanently hard-delete your account profile, customized aliases, and webhooks under GDPR Article 17.
             </p>
           </div>
@@ -185,7 +185,7 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="px-4 py-2 bg-rose-600/20 border border-rose-500/40 hover:bg-rose-600 text-rose-200 hover:text-white rounded-xl text-xs font-bold transition-all shrink-0"
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-sm"
           >
             Delete Account
           </button>
@@ -194,49 +194,49 @@ export const DangerZone: React.FC<DangerZoneProps> = ({
 
       {/* Account Deletion Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md bg-white border border-rose-300 rounded-3xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+              <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
                 <AlertTriangle className="w-5 h-5" />
                 <span>Permanent Account Deletion</span>
               </div>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-stone-400 hover:text-stone-700 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-stone-600 font-medium">
               This action cannot be undone. All your profile settings, custom aliases, and calendar subscription feeds will be immediately erased.
             </p>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] text-slate-400">
-                Type <strong className="text-rose-400 font-mono">DELETE</strong> to confirm:
+              <label className="text-[11px] text-stone-600 font-semibold">
+                Type <strong className="text-rose-600 font-mono">DELETE</strong> to confirm:
               </label>
               <input
                 type="text"
                 value={confirmInput}
                 onChange={(e) => setConfirmInput(e.target.value)}
                 placeholder="DELETE"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-rose-500"
+                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-mono focus:outline-none focus:border-rose-500 font-bold"
               />
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="btn-secondary text-xs py-2 px-3"
+                className="btn-secondary text-xs py-2 px-3 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={confirmInput !== "DELETE" || deleting}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
               >
                 {deleting ? "Deleting..." : "Permanently Delete"}
               </button>

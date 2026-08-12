@@ -58,15 +58,15 @@ export const PwaInstallPrompt: React.FC = () => {
   if (!showPrompt || isStandalone) return null;
 
   return (
-    <div className="bg-gradient-to-r from-emerald-900/40 via-slate-900/60 to-teal-900/40 border-b border-emerald-500/20 backdrop-blur-md px-4 py-3">
+    <div className="bg-gradient-to-r from-emerald-50 via-white to-amber-50 border-b border-stone-200 backdrop-blur-md px-4 py-3 shadow-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-            <Download className="w-5 h-5 text-emerald-400" />
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0 text-emerald-800">
+            <Download className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">Install BinDay App</p>
-            <p className="text-xs text-slate-300">
+            <p className="text-sm font-black text-stone-900">Install BinDay App</p>
+            <p className="text-xs text-stone-600 font-medium">
               {isIos
                 ? "Tap Share and select 'Add to Home Screen' for instant access & push alerts."
                 : "Install as a desktop or mobile app for quick offline bin checks."}
@@ -78,14 +78,14 @@ export const PwaInstallPrompt: React.FC = () => {
           {deferredPrompt && (
             <button
               onClick={handleInstallClick}
-              className="btn-primary py-1.5 px-3.5 text-xs"
+              className="btn-primary py-1.5 px-3.5 text-xs cursor-pointer"
             >
               Install
             </button>
           )}
 
           {isIos && (
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-medium px-2 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-800 font-bold px-2.5 py-1 bg-emerald-50 rounded-lg border border-emerald-200 shadow-sm">
               <Share className="w-3.5 h-3.5" />
               <span>Share</span>
               <span>→</span>
@@ -96,7 +96,7 @@ export const PwaInstallPrompt: React.FC = () => {
 
           <button
             onClick={handleDismiss}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+            className="text-stone-400 hover:text-stone-700 p-1 rounded-lg hover:bg-stone-100 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

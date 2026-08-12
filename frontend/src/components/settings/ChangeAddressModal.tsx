@@ -62,7 +62,7 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
 
   const handleSelectAddress = async (addr: Address) => {
     setSelectedAddress(addr);
-    const config = await getCouncilConfig(addr.custodianCode);
+    const config = await getCouncilConfig(addr.custodianCode, addr.councilName);
     setCouncilConfig(config);
   };
 
@@ -87,26 +87,26 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-xl bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Background glow */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-stone-200 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800">
               <Home className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">Change Your Address</h2>
-              <p className="text-xs text-slate-400 font-medium">Update your property location & council bin feed</p>
+              <h2 className="text-xl font-black text-stone-900 tracking-tight">Change Your Address</h2>
+              <p className="text-xs text-stone-500 font-medium">Update your property location & council bin feed</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -117,21 +117,23 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
         <div className="overflow-y-auto py-5 space-y-5 text-xs pr-1">
           {/* Current Address Card */}
           {user?.address && (
-            <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Address:</span>
-              <p className="text-white font-semibold text-xs">{user.address.singleLineAddress}</p>
-              <p className="text-[11px] text-slate-400 font-mono">Council: {user.address.councilName} (UPRN: {user.address.uprn})</p>
+            <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 space-y-1 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Current Address:</span>
+              <p className="text-stone-900 font-bold text-xs">{user.address.singleLineAddress}</p>
+              <p className="text-[11px] text-stone-500 font-medium">
+                Council: <span className="font-semibold text-stone-700">{user.address.councilName}</span> (UPRN: {user.address.uprn})
+              </p>
             </div>
           )}
 
           {/* Search Postcode Form */}
           <form onSubmit={handleSearch} className="space-y-2">
-            <label className="block font-bold text-slate-300">
+            <label className="block font-bold text-stone-800">
               Enter your new UK Postcode:
             </label>
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={postcodeInput}
@@ -139,15 +141,15 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
                     setError(null);
                     setPostcodeInput(formatPostcode(e.target.value));
                   }}
-                  placeholder="e.g. LS26 8XX"
+                  placeholder="e.g. LS26 8XX or NG17 2LS"
                   disabled={searching || saving}
-                  className="w-full pl-10 pr-3 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-white text-xs font-semibold uppercase placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full pl-10 pr-3 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold uppercase placeholder-stone-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
                 />
               </div>
               <button
                 type="submit"
                 disabled={searching || !postcodeInput.trim()}
-                className="btn-primary text-xs py-2.5 px-4 shrink-0 flex items-center gap-1.5"
+                className="btn-primary text-xs py-2.5 px-4 shrink-0 flex items-center gap-1.5 cursor-pointer"
               >
                 {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 <span>Find</span>
@@ -155,15 +157,15 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
             </div>
           </form>
 
-          {error && <p className="text-rose-400 text-xs font-semibold">{error}</p>}
+          {error && <p className="text-rose-600 text-xs font-semibold">{error}</p>}
 
           {/* Address Results List */}
           {addressList.length > 0 && (
             <div className="space-y-2">
-              <label className="block font-bold text-slate-300">
+              <label className="block font-bold text-stone-800">
                 Select your property ({addressList.length} found):
               </label>
-              <div className="max-h-48 overflow-y-auto space-y-1.5 p-1 border border-slate-800 rounded-2xl bg-slate-950/50">
+              <div className="max-h-48 overflow-y-auto space-y-1.5 p-1 border border-stone-200 rounded-2xl bg-stone-50 shadow-inner">
                 {addressList.map((addr) => {
                   const isSelected = selectedAddress?.uprn === addr.uprn;
                   return (
@@ -171,14 +173,14 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
                       key={addr.uprn}
                       type="button"
                       onClick={() => handleSelectAddress(addr)}
-                      className={`w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 ${
+                      className={`w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${
                         isSelected
-                          ? "bg-emerald-500/20 border border-emerald-500/50 text-white font-semibold"
-                          : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
+                          ? "bg-emerald-100 border border-emerald-400 text-emerald-950 font-bold shadow-sm"
+                          : "text-stone-700 hover:bg-white hover:text-stone-900 border border-transparent"
                       }`}
                     >
                       <span className="truncate">{addr.singleLineAddress}</span>
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />}
                     </button>
                   );
                 })}
@@ -188,26 +190,26 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
 
           {/* Selected Address Confirmation Banner */}
           {selectedAddress && (
-            <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2 shadow-sm">
+              <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-700" />
                 <span>Selected New Property</span>
               </div>
-              <p className="text-white font-bold">{selectedAddress.singleLineAddress}</p>
-              <p className="text-slate-400 text-[11px]">
-                Council: {councilConfig?.councilName || selectedAddress.councilName} • UPRN: {selectedAddress.uprn}
+              <p className="text-stone-900 font-black">{selectedAddress.singleLineAddress}</p>
+              <p className="text-stone-600 text-[11px] font-medium">
+                Council: <span className="font-bold text-stone-800">{selectedAddress.councilName || councilConfig?.councilName}</span> • UPRN: {selectedAddress.uprn}
               </p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-2.5 shrink-0">
+        <div className="pt-4 border-t border-stone-200 flex items-center justify-end gap-2.5 shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="btn-secondary text-xs py-2 px-4"
+            className="btn-secondary text-xs py-2 px-4 cursor-pointer"
           >
             Cancel
           </button>
@@ -215,7 +217,7 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
             type="button"
             onClick={handleConfirmChange}
             disabled={!selectedAddress || saving}
-            className="btn-primary text-xs py-2 px-5 flex items-center gap-2"
+            className="btn-primary text-xs py-2 px-5 flex items-center gap-2 cursor-pointer"
           >
             {saving ? (
               <>
