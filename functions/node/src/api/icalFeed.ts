@@ -228,7 +228,7 @@ export async function handleIcalFeed(req: Request, res: Response): Promise<void>
 
     res.set({
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": 'inline; filename="binday-schedule.ics"',
+      "Content-Disposition": 'attachment; filename="binday-schedule.ics"',
       "Access-Control-Allow-Origin": "*",
       "Cache-Control": "private, max-age=3600, stale-while-revalidate=86400"
     });

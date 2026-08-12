@@ -8,6 +8,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      workbox: {
+        // Exclude all /api routes from Service Worker navigation fallback so browser downloads/API calls pass directly through to Cloud Functions
+        navigateFallbackDenylist: [/^\/api/]
+      },
       manifest: {
         name: 'BinDay UK - Bin Collection Tracker',
         short_name: 'BinDay',
