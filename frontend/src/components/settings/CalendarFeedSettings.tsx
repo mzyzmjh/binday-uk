@@ -1,31 +1,37 @@
 import React, { useState } from "react";
-import { Calendar, Copy, Check, Bell, BellOff, Smartphone, Monitor, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { Calendar, Copy, Check, Bell, Smartphone, ArrowUpRight, Globe, HelpCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, message: string) => void }> = ({ onShowToast }) => {
   const { user, updateAlerts } = useAuth();
-  const [copied, setCopied] = useState(false);
+  const [copiedHttps, setCopiedHttps] = useState(false);
+  const [copiedWebcal, setCopiedWebcal] = useState(false);
   const [leadTime, setLeadTime] = useState(
     user?.alertPreferences?.enabled === false || user?.alertPreferences?.leadTimeHours === 0
       ? 0
       : (user?.alertPreferences?.leadTimeHours ?? 17)
   );
 
-  const calToken = user?.tokens?.calendarToken || "demo-token";
+  const calToken = user?.tokens?.calendarToken || user?.uid || "demo-token";
   const origin = window.location.origin;
-  const httpsUrl = `${origin}/api/ical/${calToken}`;
+  const httpsUrl = `${origin}/api/ical/${calToken}.ics`;
   const webcalUrl = httpsUrl.replace(/^https?:\/\//, "webcal://");
 
   // Google Calendar 1-Click Subscribe URL
-  const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(httpsUrl)}`;
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`;
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, type: "https" | "webcal") => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
+    if (type === "https") {
+      setCopiedHttps(true);
+      setTimeout(() => setCopiedHttps(false), 2500);
+    } else {
+      setCopiedWebcal(true);
+      setTimeout(() => setCopiedWebcal(false), 2500);
+    }
     if (onShowToast) {
       onShowToast("Copied to Clipboard", "Calendar subscription URL copied.");
     }
-    setTimeout(() => setCopied(false), 2500);
   };
 
   const handleLeadTimeChange = async (hours: number, triggerStr: string) => {
@@ -106,29 +112,74 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
         </a>
       </div>
 
-      {/* Subscription URL Box */}
-      <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+      {/* Manual Subscription URLs */}
+      <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-4">
         <label className="block text-xs font-semibold text-slate-300">
           Or Copy Your Unique Calendar URL Manually
         </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            readOnly
-            value={webcalUrl}
-            className="flex-1 px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono text-xs select-all focus:outline-none"
-          />
-          <button
-            onClick={() => handleCopy(webcalUrl)}
-            className="btn-primary text-xs py-2.5 px-4 shrink-0 flex items-center gap-1.5"
-          >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? "Copied!" : "Copy Link"}</span>
-          </button>
+
+        {/* HTTPS URL */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-blue-400" />
+              Standard HTTPS URL (Google Calendar / Outlook / Thunderbird)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={httpsUrl}
+              className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-blue-400 font-mono text-xs select-all focus:outline-none"
+            />
+            <button
+              onClick={() => handleCopy(httpsUrl, "https")}
+              className="btn-primary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5"
+            >
+              {copiedHttps ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedHttps ? "Copied!" : "Copy HTTPS"}</span>
+            </button>
+          </div>
         </div>
-        <p className="text-[11px] text-slate-500">
-          Compatible with Apple Calendar (iOS/Mac), Google Calendar, Outlook, and Thunderbird.
-        </p>
+
+        {/* Webcal URL */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              WebCal URL (Apple Calendar / iOS / macOS)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={webcalUrl}
+              className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono text-xs select-all focus:outline-none"
+            />
+            <button
+              onClick={() => handleCopy(webcalUrl, "webcal")}
+              className="btn-secondary text-xs py-2 px-3.5 shrink-0 flex items-center gap-1.5"
+            >
+              {copiedWebcal ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedWebcal ? "Copied!" : "Copy WebCal"}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Setup Help Guide */}
+        <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+          <div className="font-semibold text-slate-300 flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+            How to manually subscribe in Google Calendar:
+          </div>
+          <ol className="list-decimal list-inside space-y-1 pl-1 text-slate-400">
+            <li>Open <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="text-blue-400 underline">Google Calendar on desktop</a>.</li>
+            <li>On the left sidebar, click the <strong>+</strong> next to <em>Other calendars</em> $\rightarrow$ <strong>From URL</strong>.</li>
+            <li>Paste your <strong>HTTPS URL</strong> above and click <strong>Add calendar</strong>.</li>
+          </ol>
+        </div>
       </div>
 
       {/* Default Alert Timing (VALARM) */}
@@ -138,58 +189,28 @@ export const CalendarFeedSettings: React.FC<{ onShowToast?: (title: string, mess
           <span>Automatic Calendar Notification (VALARM)</span>
         </div>
         <p className="text-xs text-slate-300">
-          Choose when your calendar app should alert you before bin day:
+          When subscribed, your calendar will automatically send you a notification reminding you to put your bins out.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           {[
-            { hours: 17, trigger: "-PT17H", label: "19:00 Night Before (Recommended)" },
-            { hours: 12, trigger: "-PT12H", label: "00:00 Midnight" },
-            { hours: 1, trigger: "-PT1H", label: "07:00 Morning of Collection" },
-            { hours: 0, trigger: "none", label: "No Reminder (Silent)" }
-          ].map((opt) => (
+            { label: "Night Before (19:00)", hours: 17, trigger: "-PT17H" },
+            { label: "Night Before (21:00)", hours: 15, trigger: "-PT15H" },
+            { label: "Morning Of (07:00)", hours: 5, trigger: "-PT5H" },
+            { label: "No Reminder (Silent)", hours: 0, trigger: "none" }
+          ].map((item) => (
             <button
-              key={opt.hours}
-              type="button"
-              onClick={() => handleLeadTimeChange(opt.hours, opt.trigger)}
-              className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all ${
-                leadTime === opt.hours
-                  ? "bg-emerald-950/40 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/30"
-                  : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700"
+              key={item.hours}
+              onClick={() => handleLeadTimeChange(item.hours, item.trigger)}
+              className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${
+                leadTime === item.hours
+                  ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-300"
+                  : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span>{opt.label}</span>
-                {leadTime === opt.hours && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-              </div>
+              {item.label}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Quick Setup Instructions Accordion */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-white">
-            <Smartphone className="w-4 h-4 text-sky-400" />
-            <span>Apple Calendar (iPhone & Mac)</span>
-          </div>
-          <ol className="list-decimal list-inside space-y-1 text-slate-400 pl-1 leading-relaxed">
-            <li>Click <b>Subscribe on iPhone / Mac</b> above, or copy the <span className="font-mono text-emerald-400">webcal://</span> link.</li>
-            <li>On iPhone: Open Calendar → Tap <b>Calendars</b> → <b>Add Subscription Calendar</b>.</li>
-            <li>Paste link and tap <b>Subscribe</b>.</li>
-          </ol>
-        </div>
-
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-white">
-            <Monitor className="w-4 h-4 text-amber-400" />
-            <span>Google Calendar & Outlook</span>
-          </div>
-          <ol className="list-decimal list-inside space-y-1 text-slate-400 pl-1 leading-relaxed">
-            <li>Click <b>Add to Google Calendar</b> above for instant 1-click import!</li>
-            <li>Or in Outlook/Google Calendar: Click <b>+ Other calendars</b> → <b>From URL</b> and paste the link.</li>
-          </ol>
         </div>
       </div>
     </div>
