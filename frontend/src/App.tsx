@@ -73,17 +73,20 @@ const MainAppContent: React.FC = () => {
     setSearching(true);
     try {
       const results = await lookupAddresses(pc);
+      if (!results || results.length === 0) {
+        throw new Error(`No addresses found for postcode "${pc}". Please check that the postcode is valid.`);
+      }
       setSearchedPostcode(pc);
       setAddressList(results);
       setSelectedAddress(null);
       setSelectedCouncilConfig(null);
       setProprietaryId("");
 
-      if (results.length > 0) {
-        addToast("Addresses Found", `Loaded ${results.length} properties for ${pc}.`, "info");
-      }
-    } catch (e) {
-      addToast("Search Error", "Could not fetch addresses for this postcode.", "error");
+      addToast("Addresses Found", `Loaded ${results.length} properties for ${pc}.`, "info");
+    } catch (e: any) {
+      const msg = e.message || `Could not fetch addresses for postcode "${pc}".`;
+      addToast("Postcode Not Found", msg, "error");
+      throw e;
     } finally {
       setSearching(false);
     }

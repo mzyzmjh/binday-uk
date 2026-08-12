@@ -11,6 +11,38 @@ export interface DpaAddress {
 }
 
 export const MOCK_DPA_RECORDS: Record<string, DpaAddress[]> = {
+  "W1T4JZ": [
+    {
+      UPRN: "100023337001",
+      BUILDING_NUMBER: "10",
+      THOROUGHFARE_NAME: "Tottenham Mews",
+      POST_TOWN: "London",
+      POSTCODE: "W1T 4JZ",
+      LOCAL_CUSTODIAN_CODE: 5060,
+      LOCAL_CUSTODIAN_CODE_DESCRIPTION: "Camden London Borough Council",
+      ADDRESS: "10, Tottenham Mews, London, W1T 4JZ"
+    },
+    {
+      UPRN: "100023337002",
+      BUILDING_NUMBER: "12",
+      THOROUGHFARE_NAME: "Tottenham Mews",
+      POST_TOWN: "London",
+      POSTCODE: "W1T 4JZ",
+      LOCAL_CUSTODIAN_CODE: 5060,
+      LOCAL_CUSTODIAN_CODE_DESCRIPTION: "Camden London Borough Council",
+      ADDRESS: "12, Tottenham Mews, London, W1T 4JZ"
+    },
+    {
+      UPRN: "100023337003",
+      BUILDING_NUMBER: "14",
+      THOROUGHFARE_NAME: "Tottenham Mews",
+      POST_TOWN: "London",
+      POSTCODE: "W1T 4JZ",
+      LOCAL_CUSTODIAN_CODE: 5060,
+      LOCAL_CUSTODIAN_CODE_DESCRIPTION: "Camden London Borough Council",
+      ADDRESS: "14, Tottenham Mews, London, W1T 4JZ"
+    }
+  ],
   "LS268XX": [
     {
       UPRN: "100051234501",
@@ -157,21 +189,10 @@ export const MOCK_DPA_RECORDS: Record<string, DpaAddress[]> = {
   ]
 };
 
-export function getMockDpaForPostcode(normalizedPostcode: string): DpaAddress[] {
+export function getMockDpaForPostcode(normalizedPostcode: string): DpaAddress[] | null {
   const cleanPostcode = normalizedPostcode.replace(/\s+/g, "").toUpperCase();
   if (MOCK_DPA_RECORDS[cleanPostcode]) {
     return MOCK_DPA_RECORDS[cleanPostcode];
   }
-
-  // Generate generic realistic mock addresses for any other postcode
-  return [1, 2, 5, 8, 12, 25].map((num) => ({
-    UPRN: `1000${cleanPostcode.charCodeAt(0)}${cleanPostcode.charCodeAt(1)}${num.toString().padStart(4, "0")}`,
-    BUILDING_NUMBER: num.toString(),
-    THOROUGHFARE_NAME: "High Street",
-    POST_TOWN: "Townsville",
-    POSTCODE: normalizedPostcode,
-    LOCAL_CUSTODIAN_CODE: 4720, // Default to Leeds or supported council
-    LOCAL_CUSTODIAN_CODE_DESCRIPTION: "Leeds City Council",
-    ADDRESS: `${num}, High Street, Townsville, ${normalizedPostcode}`
-  }));
+  return null;
 }

@@ -51,10 +51,10 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
       const results = await lookupAddresses(clean);
       setAddressList(results);
       if (results.length === 0) {
-        setError("No addresses found for this postcode. Please check and retry.");
+        setError(`No addresses found for postcode "${clean}". Please check and retry.`);
       }
     } catch (err: any) {
-      setError("Failed to search postcode.");
+      setError(err.message || "Failed to search postcode.");
     } finally {
       setSearching(false);
     }
@@ -141,7 +141,7 @@ export const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({ isOpen, 
                     setError(null);
                     setPostcodeInput(formatPostcode(e.target.value));
                   }}
-                  placeholder="e.g. LS26 8XX or NG17 2LS"
+                  placeholder="e.g. W1T 4JZ"
                   disabled={searching || saving}
                   className="w-full pl-10 pr-3 py-2.5 bg-white border border-stone-300 rounded-xl text-stone-900 text-xs font-bold uppercase placeholder-stone-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
                 />

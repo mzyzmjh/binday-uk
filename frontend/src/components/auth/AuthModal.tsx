@@ -32,13 +32,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const defaultMockAddress: Address = {
-    uprn: "100051234501",
-    buildingNumber: "1",
-    thoroughfareName: "Church Street",
-    singleLineAddress: "1, Church Street, Rothwell, Leeds, LS26 8XX",
-    postcode: "LS26 8XX",
-    custodianCode: "4720",
-    councilName: "Leeds City Council"
+    uprn: "100023337001",
+    buildingNumber: "10",
+    thoroughfareName: "Tottenham Mews",
+    singleLineAddress: "10, Tottenham Mews, London, W1T 4JZ",
+    postcode: "W1T 4JZ",
+    custodianCode: "5060",
+    councilName: "Camden London Borough Council"
   };
 
   const targetAddress = pendingAddress || defaultMockAddress;

@@ -87,13 +87,13 @@ export async function signInWithGoogle(
       let profile = await getUserProfile(user.uid);
       if (!profile) {
         const selectedAddr = address || {
-          uprn: "100051234501",
-          buildingNumber: "1",
-          thoroughfareName: "High Street",
-          singleLineAddress: "1 High Street, Leeds, LS26 8XX",
-          postcode: "LS26 8XX",
-          custodianCode: "4720",
-          councilName: "Leeds City Council"
+          uprn: "100023337001",
+          buildingNumber: "10",
+          thoroughfareName: "Tottenham Mews",
+          singleLineAddress: "10, Tottenham Mews, London, W1T 4JZ",
+          postcode: "W1T 4JZ",
+          custodianCode: "5060",
+          councilName: "Camden London Borough Council"
         };
 
         profile = await createOrInitUserProfile({
@@ -118,13 +118,13 @@ export async function signInWithGoogle(
   // Simulated Google Auth for dev/preview
   const mockUid = "g_usr_" + Math.random().toString(36).substring(2, 9);
   const defaultAddress = address || {
-    uprn: "100051234501",
-    buildingNumber: "1",
-    thoroughfareName: "Church Street",
-    singleLineAddress: "1, Church Street, Rothwell, Leeds, LS26 8XX",
-    postcode: "LS26 8XX",
-    custodianCode: "4720",
-    councilName: "Leeds City Council"
+    uprn: "100023337001",
+    buildingNumber: "10",
+    thoroughfareName: "Tottenham Mews",
+    singleLineAddress: "10, Tottenham Mews, London, W1T 4JZ",
+    postcode: "W1T 4JZ",
+    custodianCode: "5060",
+    councilName: "Camden London Borough Council"
   };
 
   const profile = await createOrInitUserProfile({
@@ -142,13 +142,13 @@ export async function signInWithGoogle(
 export async function quickDemoLogin(address?: Address): Promise<UserProfile> {
   const mockUid = "demo_usr_01";
   const defaultAddress = address || {
-    uprn: "100051234501",
-    buildingNumber: "1",
-    thoroughfareName: "Church Street",
-    singleLineAddress: "1, Church Street, Rothwell, Leeds, LS26 8XX",
-    postcode: "LS26 8XX",
-    custodianCode: "4720",
-    councilName: "Leeds City Council"
+    uprn: "100023337001",
+    buildingNumber: "10",
+    thoroughfareName: "Tottenham Mews",
+    singleLineAddress: "10, Tottenham Mews, London, W1T 4JZ",
+    postcode: "W1T 4JZ",
+    custodianCode: "5060",
+    councilName: "Camden London Borough Council"
   };
 
   const profile = await createOrInitUserProfile({

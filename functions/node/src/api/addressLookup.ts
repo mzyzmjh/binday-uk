@@ -155,7 +155,7 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
     const formattedPostcode = normalizePostcode(rawPostcode);
     const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
     if (!ukPostcodeRegex.test(formattedPostcode)) {
-      res.status(400).json({ error: "Invalid UK postcode format. Example: LS26 8XX" });
+      res.status(400).json({ error: "Invalid UK postcode format. Example: W1T 4JZ" });
       return;
     }
 
@@ -163,7 +163,7 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
     const osApiKey = process.env.OS_PLACES_API_KEY;
     const cleanNoSpace = formattedPostcode.replace(/\s+/g, "");
 
-    // Concurrently fetch district metadata from Postcodes.io for authoritative council name
+    // Concurrently fetch district metadata from Postcodes.io for authoritative council name & validation
     const districtMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
 
     let normalizedAddresses: NormalizedAddress[] = [];
@@ -190,26 +190,35 @@ export async function handleAddressLookup(req: Request, res: Response): Promise<
       }
     }
 
-    // 3. Fallback: postcodes.io + mock database
+    // 3. Fallback: Mock database for configured fixture postcodes (e.g. W1T 4JZ, M1 1AA, etc.)
     if (normalizedAddresses.length === 0) {
       const dpaMock = getMockDpaForPostcode(formattedPostcode);
-      if (dpaMock && dpaMock !== getMockDpaForPostcode("DEFAULT")) {
+      if (dpaMock) {
         normalizedAddresses = dpaMock.map(dpaToNormalized);
-      } else {
-        const liveMeta = await lookupPostcodeViaPostcodesIo(formattedPostcode);
-        if (liveMeta) {
-          normalizedAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
-            uprn: `1000${num.toString().padStart(8, "0")}`,
-            buildingNumber: num.toString(),
-            thoroughfareName: "High Street",
-            postTown: liveMeta.councilName,
-            postcode: formattedPostcode,
-            custodianCode: liveMeta.adminCode,
-            councilName: liveMeta.councilName,
-            singleLineAddress: `${num} High Street, ${liveMeta.ward}, ${liveMeta.councilName}, ${formattedPostcode}`
-          }));
-        }
+      } else if (districtMeta) {
+        // If postcodes.io validates this is a real UK postcode district
+        normalizedAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24].map((num) => ({
+          uprn: `1000${num.toString().padStart(8, "0")}`,
+          buildingNumber: num.toString(),
+          thoroughfareName: "High Street",
+          postTown: districtMeta.councilName,
+          postcode: formattedPostcode,
+          custodianCode: districtMeta.adminCode,
+          councilName: districtMeta.councilName,
+          singleLineAddress: `${num} High Street, ${districtMeta.ward ? districtMeta.ward + ", " : ""}${districtMeta.councilName}, ${formattedPostcode}`
+        }));
       }
+    }
+
+    // If still no addresses found, the postcode is false / invalid
+    if (normalizedAddresses.length === 0) {
+      res.status(404).json({
+        error: `No addresses found for postcode "${formattedPostcode}". Please check that the postcode is valid.`,
+        postcode: formattedPostcode,
+        count: 0,
+        addresses: []
+      });
+      return;
     }
 
     const sorted = sortAddressesNumerically(normalizedAddresses);

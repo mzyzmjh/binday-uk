@@ -51,9 +51,15 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
       if (data.addresses && Array.isArray(data.addresses) && data.addresses.length > 0) {
         return data.addresses;
       }
+    } else if (res.status === 404 || res.status === 400) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `No addresses found for postcode "${cleanPostcode}". Please check that the postcode is valid.`);
     }
-  } catch (e) {
-    // API endpoint unreachable or running in standalone frontend mode
+  } catch (e: any) {
+    if (e.message && e.message.includes("No addresses found")) {
+      throw e;
+    }
+    // API endpoint unreachable or running in standalone mode
   }
 
   // 2. Try Postcoder client-side if VITE_POSTCODER_API_KEY is configured
@@ -107,22 +113,18 @@ export async function lookupAddresses(postcode: string): Promise<Address[]> {
           councilName: adminDistrict.toLowerCase().includes("council") ? adminDistrict : `${adminDistrict} Council`
         }));
       }
+    } else if (pioRes.status === 404) {
+      throw new Error(`No addresses found for postcode "${cleanPostcode}". Please check that the postcode is valid.`);
     }
-  } catch (e) {
+  } catch (e: any) {
+    if (e.message && e.message.includes("No addresses found")) {
+      throw e;
+    }
     console.warn("Postcodes.io direct query fallback failed:", e);
   }
 
-  // 4. Fallback for offline / demo mode
-  const numbers = [1, 2, 5, 8, 12, 24];
-  return numbers.map((num) => ({
-    uprn: `1000${cleanNoSpace.charCodeAt(0) || 50}${num.toString().padStart(4, "0")}`,
-    buildingNumber: num.toString(),
-    thoroughfareName: "High Street",
-    singleLineAddress: `${num} High Street, Local Area, ${cleanPostcode}`,
-    postcode: cleanPostcode,
-    custodianCode: "4720",
-    councilName: "Local Council"
-  }));
+  // If no addresses found after checking all sources, return empty array
+  return [];
 }
 
 // 2. Council Support Validation

@@ -34,11 +34,16 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
 
     const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
     if (!ukPostcodeRegex.test(clean)) {
-      setValidationError("Please enter a valid UK postcode (e.g. LS26 8XX or NG17 2LS).");
+      setValidationError("Please enter a valid UK postcode (e.g. W1T 4JZ).");
       return;
     }
 
-    await onSearch(clean);
+    try {
+      setValidationError(null);
+      await onSearch(clean);
+    } catch (err: any) {
+      setValidationError(err.message || `No addresses found for postcode "${clean}". Please check and try again.`);
+    }
   };
 
   return (
@@ -69,7 +74,7 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
               type="text"
               value={postcodeInput}
               onChange={handleInputChange}
-              placeholder="e.g. LS26 8XX or NG17 2LS"
+              placeholder="e.g. W1T 4JZ"
               disabled={isLoading}
               maxLength={8}
               autoFocus
@@ -80,7 +85,7 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
           <button
             type="submit"
             disabled={isLoading || !postcodeInput.trim()}
-            className="btn-primary w-full sm:w-auto py-3 px-6 text-base shrink-0"
+            className="btn-primary w-full sm:w-auto py-3 px-6 text-base shrink-0 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -97,7 +102,7 @@ export const PostcodeLookup: React.FC<PostcodeLookupProps> = ({ onSearch, isLoad
         </div>
 
         {validationError && (
-          <p className="text-xs text-rose-600 font-semibold text-left mt-2 pl-2">
+          <p className="text-xs text-rose-600 font-bold text-left mt-2 pl-2">
             {validationError}
           </p>
         )}
